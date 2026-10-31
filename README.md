@@ -1,1 +1,1 @@
-# 2026-Hackaton-team02
+# 2026-Hackathon-team02
