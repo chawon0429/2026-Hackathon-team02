@@ -1,0 +1,151 @@
+.mypage {
+  --blue: #0057e7;
+  --blue-soft: #d3e2ff;
+  --gray: #d9d9d9;
+  --gray-text: #595959;
+  --line: #111;
+  --pad: 14px;
+
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: #fff;
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+.mypage button { 
+  font: inherit; color: inherit; cursor: pointer; 
+}
+.mypage ul { 
+  list-style: none; margin: 0; padding: 0; 
+}
+
+.mypage__topbar { 
+  height: 40px; background: var(--blue); 
+}
+.mypage__body { 
+  flex: 1; padding-bottom: 96px;
+}
+
+/* 프로필 */
+.profile { 
+  padding: 18px var(--pad) 14px; border-bottom: 1px solid #ddd; 
+}
+.profile__row { 
+  display: flex; align-items: center; gap: 12px; 
+}
+.profile__avatar { 
+  width: 52px; height: 52px; border-radius: 50%; background: var(--gray); flex: none; 
+}
+.profile__name { 
+  margin: 0; font-size: 24px; font-weight: 600; 
+}
+.badge-admin { 
+  background: var(--blue-soft); font-size: 13px; padding: 4px 10px; border-radius: 6px; 
+}
+.btn-logout {
+  margin-left: auto; background: #fff; border: 2px solid var(--blue);
+  border-radius: 4px; padding: 0 10px; min-height: 44px; font-size: 13px; font-weight: 700;
+}
+.stats { 
+  display: flex; gap: 8px; margin-top: 14px; 
+}
+.stat {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 3px;
+  background: #fff; border: 1px solid #777; border-radius: 8px; padding: 4px 2px; min-height: 44px; font-size: 12px;
+}
+.stat span { 
+  color: var(--gray-text); 
+}
+
+/* 섹션 */
+.section { 
+  padding: 18px var(--pad) 14px; border-bottom: 1px solid #ddd; 
+}
+.section:last-child { 
+  border-bottom: 0; 
+}
+.section__head { 
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; 
+}
+.section__head h2 { 
+  margin: 0; font-size: 20px; font-weight: 700; 
+}
+.section__more { 
+  background: none; border: 0; padding: 4px; display: flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; 
+}
+
+/* 필터 */
+.filters { 
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px; 
+}
+.sort { 
+  border: 1px solid var(--line); border-radius: 8px; padding: 0 6px; min-height: 44px; font-size: 13px; background: #fff; 
+}
+.filters__divider { 
+  width: 1px; height: 22px; background: #ccc; 
+}
+.tabs { 
+  display: flex; gap: 8px; 
+}
+.tab { 
+  background: var(--gray); border: 0; border-radius: 6px; padding: 0 14px; min-height: 44px; font-size: 13px; 
+}
+.tab.is-active { 
+  background: var(--blue-soft); color: var(--blue); font-weight: 700; 
+}
+
+/* 카드 */
+.cards { 
+  display: flex; flex-direction: column; gap: 10px; 
+}
+.card {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--line); border-radius: 12px; padding: 12px 10px; background: #fff;
+}
+.card__store { 
+  font-size: 16px; 
+}
+.card__dong { 
+  font-size: 13px; color: var(--gray-text); 
+}
+.status {
+  margin-left: auto; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 6px;
+}
+.status--approved { 
+  background: var(--blue); color: #fff; 
+}
+.status--pending { 
+  background: #fff; color: var(--blue); border: 1px dashed var(--blue); 
+}
+.empty { 
+  color: var(--gray-text); font-size: 14px; text-align: center; padding: 20px 0; 
+}
+
+/* 미션 */
+.card--mission { 
+  justify-content: space-between; padding: 12px 10px; 
+}
+.card--mission.is-done { 
+  background: var(--blue-soft); 
+}
+.mission__row { 
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; 
+}
+.mission__title { 
+  font-size: 15px; 
+}
+.card--mission.is-done .mission__title { 
+  font-weight: 700; 
+}
+.mission__point { 
+  font-size: 14px; font-weight: 700; color: var(--blue); 
+}
+.check {
+  width: 24px; height: 24px; border-radius: 50%; flex: none;
+  border: 1px dashed var(--blue); display: grid; place-items: center;
+}
+.check.is-done { background: var(--blue); border-style: solid; }
+.mypage button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
