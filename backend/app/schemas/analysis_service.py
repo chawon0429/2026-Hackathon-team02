@@ -39,3 +39,15 @@ class ReportClassificationResponse(BaseModel):
     facilities: str = Field(
         description="시설 관련 제보",
     )
+class PlaceSummaryRequest(BaseModel):
+    place_name: str = Field(
+        min_length=1,
+        max_length=200,
+        description="검색할 장소 이름",
+    )
+
+
+class PlaceSummaryResponse(BaseModel):
+    summary: str = Field(
+        description="웹 검색 결과를 바탕으로 작성한 장소 정보 요약",
+    )
