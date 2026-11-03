@@ -1,10 +1,8 @@
-// 지도(발견) 화면용 목업 데이터. 나중에 API로 교체하세요.
+// 지도(발견) 화면용 목업 데이터. 나중에 API로 교체.
 
-// 지도 크기 기준(px). 아래 x, y, w, h는 이 크기의 평면도에서 잰 값이고,
-// 화면에서는 자동으로 비율에 맞춰 늘어나고 줄어듭니다.
 export const MAP_SIZE = { w: 630, h: 530 };
 
-// 지도 위 칸 배치 (왼쪽 위가 0,0). icon은 칸 안 아이콘 크기(px)예요.
+// 지도 위 칸 배치 (왼쪽 위가 0,0). icon은 칸 안 아이콘 크기(px)
 export const MAP_CELLS = [
   { id: "wc-w",   type: "restroom",     x: 0,   y: 0,   w: 188, h: 117, icon: 80, label: "서쪽 화장실" },
   { id: "ext",    type: "extinguisher", x: 350, y: 0,   w: 70,  h: 100, icon: 70, label: "소화전" },

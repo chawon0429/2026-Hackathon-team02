@@ -29,16 +29,13 @@ const IMG_ICONS = {
   autodoor: autodoorIcon,
 };
 
-// 아이콘 크기를 안 넘기면 칸 크기에 맞춰 자동으로 조절돼요 (지도 칸용)
 function Icon({ name, size, px }) {
-  // px: 지도 칸 안 아이콘 크기. 지도 폭에 맞춰 비율로 줄어들어요.
   return (
     <img className={`icon-img${px ? " is-map" : ""}`} src={IMG_ICONS[name]} alt=""
          width={size} height={size} style={px ? { "--icon": px } : undefined} />
   );
 }
 
-// 지도 위 위치를 퍼센트로 바꿔요
 const pos = ({ x, y, w, h }) => ({
   left: `${(x / MAP_SIZE.w) * 100}%`,
   top: `${(y / MAP_SIZE.h) * 100}%`,
@@ -63,7 +60,6 @@ export default function DiscoverPage() {
       <main className="discover__body">
         <h1 className="sr-only">큰 건물 내 전체 지도</h1>
 
-        {/* 지도: 칸 위치는 mocks/discover.js 의 x, y, w, h 로 정해요 */}
         <div className="fmap" role="group" aria-label="건물 B1층 지도"
              style={{ aspectRatio: `${MAP_SIZE.w} / ${MAP_SIZE.h}` }}>
           {MAP_CELLS.map((c) => {
