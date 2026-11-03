@@ -17,3 +17,9 @@ class Place(Base):
     back_populates="place",
     cascade="all, delete-orphan",
 )
+    
+    # 기존 facts 관계는 그대로 유지하고, submissions 관계를 추가
+    submissions = relationship(
+    "Submission",
+    back_populates="place",
+)
