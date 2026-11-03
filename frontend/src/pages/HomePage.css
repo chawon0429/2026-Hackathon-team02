@@ -1,0 +1,84 @@
+.home {
+    --blue: #0057e7;
+    --blue-soft: #d3e2ff;
+    --gray: #d9d9d9;
+    --pad: 16px;
+    max-width: 430px; min-height: 100vh; margin: 0 auto; background: #fff; color: #111;
+    display: flex; flex-direction: column;
+    font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+.home button { 
+    font: inherit; color: inherit; cursor: pointer; 
+}
+.home button:focus-visible, .home input:focus-visible { 
+    outline: 3px solid var(--blue); outline-offset: 2px; 
+}
+.sr-only { 
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; 
+}
+
+.home__header { 
+    background: var(--blue); height: 64px; display: grid; place-items: center; 
+}
+.home__logo { 
+    color: #fff; font-size: 28px; font-weight: 800; 
+}
+.home__body { 
+    flex: 1; padding: 16px var(--pad) 100px; display: flex; flex-direction: column; gap: 14px; 
+}
+
+/* 검색 */
+.search { 
+    display: flex; align-items: center; border: 2px solid var(--blue); border-radius: 999px; padding: 0 6px 0 16px; min-height: 48px; 
+}
+.search__input { 
+    flex: 1; border: 0; outline: 0; font-size: 16px; background: transparent; min-width: 0; 
+}
+.search__btn { 
+    width: 44px; height: 44px; border: 0; background: none; display: grid; place-items: center; 
+}
+
+
+.cats { 
+    display: flex; border: 2px solid #c9c9c9; border-radius: 14px; padding: 6px 4px; gap: 2px; 
+}
+.cat {
+    flex: 1; min-width: 0; background: none; border: 0; border-radius: 10px; min-height: 64px; padding: 6px 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; letter-spacing: -0.04em;
+}
+.cat__icon { 
+    width:32px; height:32px; object-fit:contain; display:block; 
+}
+.cat.is-active { 
+    color: var(--blue); background: var(--blue-soft); font-weight: 800; 
+}
+
+.picks { 
+    list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 6px; 
+}
+.pick {
+    position: relative;
+    min-height: 32px; padding: 0 12px 0 8px; border: 0; border-radius: 999px; background: transparent;
+    display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: #333;
+}
+.pick::after { 
+    content: ""; position: absolute; inset: -6px -3px; 
+}
+.pick svg { 
+    color: var(--blue); 
+}
+.pick.is-on { 
+    background: var(--blue); color: #fff; font-weight: 700; 
+}
+.pick.is-on svg { 
+    color: #fff; 
+}
+
+/* 목록 */
+.places { 
+    list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px solid #ddd; display: flex; flex-direction: column; gap: 14px; 
+}
+.places__empty { 
+    text-align: center; color: #595959; padding: 32px 0; font-size: 15px; 
+}
