@@ -6,8 +6,15 @@ from app.db.session import get_db
 from app.models.place import Place
 from app.schemas.place import PlaceCreate, PlaceResponse
 
+# 제보 및 관리자 API 라우터
+from app.api.v1.endpoints import submissions
+from app.api.v1.endpoints import submission_fields
+from app.api.v1.endpoints import admin
+
 v1_router = APIRouter()
 
+
+# ==================== 장소 API ====================
 
 @v1_router.post(
     "/places",
@@ -41,3 +48,10 @@ def get_place(place_id: int, db: Session = Depends(get_db)):
         )
 
     return place
+
+
+# ==================== 제보 및 관리자 API ====================
+
+v1_router.include_router(submissions.router)
+v1_router.include_router(submission_fields.router)
+v1_router.include_router(admin.router)
