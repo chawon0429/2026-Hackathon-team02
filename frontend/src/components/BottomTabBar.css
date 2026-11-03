@@ -1,0 +1,20 @@
+.tabbar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; height: 76px; background: #fff;
+    border-top: 1px solid #ccc; display: flex; justify-content: space-around; align-items: center;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.tabbar__item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    width: 64px; height: 64px; padding: 0; border-radius: 50%;
+    text-decoration: none; color: #111; font-size: 11px;
+}
+.tabbar__item.is-active { 
+    background: #d9d9d9; 
+}
+.tabbar__label { 
+    font-weight: 600; 
+}
+.tabbar__item:focus-visible { 
+    outline: 2px solid #0057e7; outline-offset: 2px; 
+}
