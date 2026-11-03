@@ -1,0 +1,136 @@
+.discover {
+  --blue: #0057e7;
+  --blue-soft: #d3e2ff;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: #fff;
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+.discover .sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+   clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.discover button { font: inherit; cursor: pointer; }
+.discover button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+.discover__body {
+  flex: 1;
+  padding: 24px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- 지도 ---------- */
+.fmap {
+  --wall: #808080;
+  position: relative;
+  width: 100%;
+  background: #cfcfcf;
+  border: 3px solid var(--wall);
+  container-type: inline-size;
+}
+.fmap__cell {
+  position: absolute;
+  box-sizing: border-box;
+  background: #fff;
+  border: 2px solid var(--wall);
+  display: grid;
+  place-items: center;
+  
+}
+.fmap__cell.is-match { border: 3px solid var(--blue); z-index: 1; }
+.fmap__cell.is-chosen { background: var(--blue-soft); border: 3px solid var(--blue); z-index: 1; }
+
+.icon-img { display: block; object-fit: contain; }
+/* 지도 칸 안의 아이콘 크기는 지도 폭에 비례해요 (--icon은 630px 기준 px) */
+.icon-img.is-map { width: calc(var(--icon) * 100cqw / 630); height: calc(var(--icon) * 100cqw / 630); }
+
+/* 가운데 둥근 테이블 (빵 아이콘) */
+.fmap__table {
+  position: absolute;
+  box-sizing: border-box;
+  background: #fff;
+  border: 2px solid #eeb08a;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+}
+.fmap__table img { width: 70%; height: 100%; object-fit: contain; display: block; transform: scale(1.15); }
+
+/* 출구: 바닥과 같은 색이고, 오른쪽에 벽 세로선만 있어요 (시안과 같음) */
+.fmap__exit {
+  position: absolute;
+  left: 81.4%; top: 47.9%; width: 15.1%; height: 8.1%;   /* 오른쪽 끝이 벽 위치(96.5%) */
+  box-sizing: border-box;
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 800; color: #111;
+}
+/* 벽 바깥쪽은 흰색 (위아래 칸이 바깥으로 튀어나와 보임) */
+.fmap__exit-door {
+  position: absolute;
+  top: 47.9%; height: 8.1%;
+  left: 96.5%; right: -3px;            /* 지도 바깥 테두리(3px)까지 덮어요 */
+  box-sizing: border-box;
+  background: #fff;
+  border-left: 3px solid var(--wall);  /* 벽 */
+}
+/* 입구: 아래쪽 벽이 뚫려 있는 부분 */
+.fmap__door {
+  position: absolute;
+  left: 43.2%; width: 19.2%; height: 3.4%;
+  bottom: -3px;
+  background: #fff;
+  border: 3px solid var(--wall);
+  border-bottom: 0;
+  box-sizing: content-box;
+}
+.fmap__label-in {
+  position: absolute;
+  left: 43.2%; width: 19.2%; bottom: 5%;
+  text-align: center;
+  font-size: 12px; font-weight: 800; color: #111;
+}
+
+/* ---------- 종류 선택 ---------- */
+.dcats {
+  display: flex;
+  border: 2px solid #c9c9c9;
+  border-radius: 14px;
+  padding: 6px 4px;
+  gap: 2px;
+}
+.dcat {
+  flex: 1; min-width: 0;
+  min-height: 64px;
+  background: none; border: 0; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  font-size: 12px; font-weight: 600; color: #333;
+  white-space: nowrap; letter-spacing: -0.04em;
+}
+.dcat.is-active { color: var(--blue); background: var(--blue-soft); font-weight: 800; }
+
+/* ---------- 목록 ---------- */
+.dlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ditem {
+  width: 100%; min-height: 56px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 14px;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.ditem.is-selected { border-color: var(--blue); background: var(--blue-soft); }
+.ditem__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ditem__name { font-size: 16px; font-weight: 800; }
+.ditem__meta { font-size: 12px; color: #595959; }
+.ditem__meta b { color: #111; }
+.ditem__badges { display: flex; gap: 10px; flex-shrink: 0; color: #111; }
+.badge { display: inline-grid; place-items: center; }
