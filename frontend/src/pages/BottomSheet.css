@@ -381,3 +381,17 @@
     color: #0057e7;
     font-weight: 700;
 }
+
+.sheet-review-arrow {
+    font-size: 36px;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transform: translateY(-10px);
+}
+
+.sheet-review-arrow.is-right {
+    transform: translateY(0px);
+}

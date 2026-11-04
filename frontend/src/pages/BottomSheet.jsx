@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './BottomSheet.css';
 import accessIcon from "../assets/cat-access.svg";
 import facilityIcon from "../assets/cat-facility.svg";
@@ -6,11 +6,12 @@ import menuIcon from "../assets/cat-menu.svg";
 import benefitIcon from "../assets/cat-benefit.svg";
 import orderIcon from "../assets/cat-order.svg";
 import { CATEGORIES, MOCK_REVIEWS} from "../mocks/places";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import like from "../assets/like.svg";
 
 function BottomSheet({ place }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const CATEGORY_ICONS = {
         access: accessIcon,
         facility: facilityIcon,
@@ -18,12 +19,17 @@ function BottomSheet({ place }) {
         benefit: benefitIcon,
         order: orderIcon,
     };
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(
+        location.state?.openReviews === true
+    );
     const [dragHeight, setDragHeight] = useState(null);
     const startRef = useRef(null);
     const contentTouchStartY = useRef(null);
     const [categoryKey, setCategoryKey] = useState("access");
     const [likedReviews, setLikedReviews] = useState([]);
+    const [showAllReviews, setShowAllReviews] = useState(
+        location.state?.openReviews === true
+    );
     const facts = place?.facts?.[categoryKey] || {};
     const reviewPhotos = [
         place?.thumb,
@@ -230,7 +236,7 @@ function BottomSheet({ place }) {
                     <button
                         type="button"
                         className="sheet-review-write-button"
-                        onClick={() => navigate("/submission")}
+                        onClick={() => navigate("/submission?placeId=" + place.id)}
                     >
                         리뷰 작성하기
                     </button>
@@ -241,11 +247,21 @@ function BottomSheet({ place }) {
                         <h2>
                             리뷰 <span>{reviews.length}</span>
                         </h2>
-                        <span className="sheet-review-arrow">›</span>
+
+                        <button
+                            type="button"
+                            className={`sheet-review-arrow${!showAllReviews ? " is-right" : ""}`}
+                            onClick={() => setShowAllReviews(!showAllReviews)}
+                            aria-expanded={showAllReviews}
+                        >
+                            {showAllReviews ? "⌄" : "›"}
+                        </button>
                     </div>
 
                     {reviews.length > 0 ? (
-                        reviews.map((review) => (
+                        reviews
+                            .slice(0, showAllReviews ? reviews.length : 2)
+                            .map((review) => (
                             <div className="sheet-review-item" key={review.reviewId}>
                                 <div className="sheet-review-profile"></div>
 

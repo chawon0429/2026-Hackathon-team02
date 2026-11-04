@@ -86,5 +86,13 @@ export const MOCK_REVIEWS = [
         date: "2026.11.01",
         content: "4",
         likes: 4
+    },
+    {
+        reviewId: 5,
+        id: 1,
+        nickname: "테스트 사용자5",
+        date: "2026.11.01",
+        content: "5",
+        likes: 4
     }
 ];
