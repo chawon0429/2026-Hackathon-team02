@@ -53,3 +53,38 @@ export const MOCK_PLACES = [
     },
     },
 ];
+
+export const MOCK_REVIEWS = [
+    {
+        reviewId: 1,
+        id: 1,
+        nickname: "테스트 사용자1",
+        date: "2026.11.04",
+        content: "1",
+        likes: 3
+    },
+    {
+        reviewId: 2,
+        id: 1,
+        nickname: "테스트 사용자2",
+        date: "2026.11.03",
+        content: "2",
+        likes: 5
+    },
+    {
+        reviewId: 3,
+        id: 2,
+        nickname: "테스트 사용자3",
+        date: "2026.11.02",
+        content: "3",
+        likes: 2
+    },
+    {
+        reviewId: 4,
+        id: 3,
+        nickname: "테스트 사용자4",
+        date: "2026.11.01",
+        content: "4",
+        likes: 4
+    }
+];
