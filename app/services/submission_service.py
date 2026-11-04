@@ -4,11 +4,11 @@ from sqlalchemy.orm import Session
 from app.models.submission import Submission
 from app.schemas.submission import SubmissionCreate
 
-
-## import 추가
-
 from app.models.place import Place
 from app.models.place_fact import PlaceFact
+
+from app.services.point_service import earn_points
+
 
 # --------------------------------------------------
 # 사용자 리뷰 등록
@@ -68,7 +68,7 @@ def get_user_submissions(
         .filter(Submission.user_id == user_id)
         .order_by(Submission.id.desc())
         .all()
-)
+    )
 
 
 # --------------------------------------------------
@@ -91,9 +91,6 @@ def get_all_submissions(
 # --------------------------------------------------
 # 관리자 리뷰 승인 또는 반려
 # --------------------------------------------------
-
-
-
 def review_submission(
     db: Session,
     submission_id: int,
@@ -153,11 +150,28 @@ def review_submission(
                         )
                     )
 
+            # 승인된 제보에 10P 적립
+            # earn_points(
+            #     db=db,
+            #     user_id=submission.user_id,
+            #     submission_id=submission.id,
+            # )
+            print("===== 포인트 적립 시작 =====")
+
+            result = earn_points(
+                db=db,
+                user_id=submission.user_id,
+                submission_id=submission.id,
+            )
+
+            print("===== 포인트 적립 결과:", result, "=====")
+        # 제보 상태 변경
         submission.status = status
         submission.reject_reason = (
             reject_reason if status == "rejected" else None
         )
 
+        # 제보 승인 + 장소 정보 반영 + 포인트 적립을 함께 저장
         db.commit()
         db.refresh(submission)
 
