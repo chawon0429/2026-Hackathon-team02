@@ -1,0 +1,70 @@
+.submission-app {
+  width: 100%;
+  max-width: 390px;
+  height: 844px;
+  margin: 16px auto;
+  background: white;
+  overflow: hidden;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.blue-bar {
+  height: 40px;
+  background-color: #0056EB;
+}
+
+.submission-content {
+  padding: 26px 16px;
+}
+
+.category-scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.category-column {
+  flex: 0 0 132px;
+}
+
+.category-column h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.category-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feature-chip {
+  width: 100%;
+  min-height: 28px;
+  border: 1px solid #4f85ff;
+  border-radius: 20px;
+  background: white;
+  color: #111;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.feature-chip.selected {
+  background: #0861ed;
+  border-color: #0861ed;
+  color: white;
+}
+
+.selected-preview {
+  margin-top: 25px;
+  font-size: 12px;
+  color: #666;
+}

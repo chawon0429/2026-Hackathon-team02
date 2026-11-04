@@ -1,0 +1,383 @@
+.bottom-sheet {
+    position: fixed;
+    bottom: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 100%;
+    max-width: 430px;
+    height: 30%;
+
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    border-top: 1px solid #aaa;
+
+    transition: height 0.5s ease;
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.bottom-sheet.open {
+    height: calc(100% - 116px);
+}
+
+.sheet-handle {
+    width: 100%;
+    height: 40px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    touch-action: none;
+}
+
+.handle-bar {
+    width: 45px;
+    height: 3px;
+
+    background-color: #7E7E7E;
+    border-radius: 10px;
+}
+
+
+
+.sheet-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 12px;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sheet-content::-webkit-scrollbar {
+    display: none;
+}
+
+.sheet-categories {
+    display: flex;
+    border: 2px solid #c9c9c9;
+    border-radius: 14px;
+    padding: 6px 4px;
+    gap: 2px;
+}
+
+.sheet-category {
+    flex: 1;
+    min-width: 0;
+    min-height: 64px;
+    padding: 6px 0;
+    background: white;
+    border: none;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    color: #333;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.sheet-category img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.sheet-category.is-active {
+    background: #d3e2ff;
+    color: #0057e7;
+    font-weight: 800;
+}
+
+.sheet-facts {
+    list-style: none;
+    margin: 0;
+    padding: 20px 8px;
+
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 8px;
+}
+
+.sheet-facts li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.sheet-check {
+    color: #0057e7;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sheet-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px 0 16px;
+}
+
+.sheet-menu-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    min-height: 115px;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.sheet-menu-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+}
+
+.sheet-menu-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.sheet-menu-price {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.sheet-menu-description {
+    font-size: 11px;
+    color: #888;
+    margin: 10px 0 0;
+    line-height: 1.4;
+}
+
+.sheet-menu-photo {
+    width: 95px;
+    height: 95px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #d9d9d9;
+}
+
+.sheet-menu-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sheet-menu-empty {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    padding: 30px 0;
+}
+
+.sheet-divider {
+    height: 1px;
+    background-color: #ddd;
+    margin: 16px -12px 0;
+}
+
+.sheet-review-photos {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.sheet-review-photo {
+    width: 115px;
+    height: 115px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.sheet-review-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sheet-review-empty {
+    width: 100%;
+    min-height: 115px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #666;
+    font-size: 13px;
+}
+
+.sheet-review-write {
+    padding: 28px 8px 24px;
+}
+
+.sheet-review-write h2 {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 20px;
+    color: black;
+}
+
+.sheet-review-write h2 span {
+    color: #0057e7;
+}
+
+.sheet-review-write-button {
+    width: 100%;
+    height: 31px;
+    background-color: #E1EBFF;
+    border: none;
+    border-radius: 12px;
+
+    color: #0057e7;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bottom-sheet:not(.open) .sheet-content {
+    overflow-y: hidden;
+}
+
+.sheet-review-list {
+    margin: 0 -12px;
+}
+
+.sheet-review-list-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.sheet-review-list-title h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.sheet-review-list-title h2 span {
+    color: #999;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.sheet-review-arrow {
+    font-size: 36px;
+    line-height: 1;
+}
+
+.sheet-review-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.sheet-review-profile {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #d9d9d9;
+    flex-shrink: 0;
+}
+
+.sheet-review-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sheet-review-user {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.sheet-review-user strong {
+    font-size: 14px;
+}
+
+.sheet-review-user span {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.sheet-review-info p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #666666;
+}
+
+.sheet-review-like {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: black;
+}
+
+.sheet-review-like span {
+    font-size: 17px;
+}
+
+.sheet-review-more {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.sheet-review-like {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: black;
+
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.sheet-review-like img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.sheet-review-like.is-liked {
+    color: #0057e7;
+    font-weight: 700;
+}
