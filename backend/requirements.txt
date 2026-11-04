@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-sqlalchemy
-psycopg[binary]
-alembic
-python-dotenv
-google-genai
