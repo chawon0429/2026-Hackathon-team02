@@ -1,3 +1,4 @@
+import AISummary from "../components/AI_Summary";
 import BottomTabBar from "../components/BottomTabBar";
 import { MOCK_PLACES } from "../mocks/places";
 import BottomSheet from "./BottomSheet";
@@ -57,9 +58,9 @@ function PlaceDetailPage() {
                     <section className="ai-summary">
                         <h2>AI요약</h2>
                         <p>
-                            {place.aiSummary || "아직 AI 요약 정보가 없습니다."}
+                                {place.aiSummary || "아직 AI 요약 정보가 없습니다."}
                         </p>
-                    </section>                 
+                    </section>                
                 </main>
 
             <BottomSheet place={place} />
