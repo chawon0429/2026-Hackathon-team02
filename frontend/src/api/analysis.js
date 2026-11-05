@@ -24,3 +24,39 @@ export async function summarizeReviews(reviews) {
 export async function summarizePlace(placeName) {
   throw new Error("AI 장소 검색 API가 아직 연결되지 않았습니다.");
 }
+
+export async function summarizePlaceSubmissions(placeId) {
+  if (!placeId) {
+    throw new Error("장소 ID가 없습니다.");
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/admin/submissions?status=approved`
+  );
+
+  if (!response.ok) {
+    throw new Error("승인된 리뷰 조회 실패");
+  }
+
+  const submissions = await response.json();
+
+  const reviews = submissions
+    .filter(
+      (submission) =>
+        String(submission.place_id) === String(placeId) &&
+        submission.status === "approved" &&
+        submission.content
+    )
+    .map((submission) => submission.content);
+
+  if (reviews.length === 0) {
+    throw new Error("AI 요약할 승인된 리뷰가 없습니다.");
+  }
+
+  const result = await summarizeReviews(reviews);
+
+  return {
+    ...result,
+    summary: result.summary ?? result,
+  };
+}

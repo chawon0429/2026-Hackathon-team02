@@ -1,8 +1,8 @@
-import os
+﻿import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# 저장소 루트의 .env 파일을 명시적으로 불러오기
+# 프로젝트 루트 inclusive-place-merge/.env
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ENV_FILE = PROJECT_ROOT / ".env"
 
