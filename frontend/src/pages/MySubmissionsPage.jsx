@@ -53,7 +53,9 @@ function normalizeStatus(status) {
 
 function getFloor(address) {
   if (!address) return "";
-  const match = String(address).match(/(?:지하\s*\d+층|B\d+층|\d+층)/);
+
+  const match = String(address).match(/(?:지하\s*\d+층|B\d+층|\d+층)/i);
+
   return match ? match[0].replace(/\s/g, "") : "";
 }
 
@@ -111,6 +113,17 @@ function parseSubmissionContent(content) {
   };
 }
 
+// 장소 API 응답 형식 통일
+function normalizePlaceList(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.places)) return data.places;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.results)) return data.results;
+
+  return [];
+}
+
 function CheckedCircleIcon() {
   return (
     <div className="mission-check-circle is-done">
@@ -150,8 +163,11 @@ function ProfileSection({ user = {}, submissions = [] }) {
     (s) => s && s.status === "rejected",
   ).length;
 
+  // 전체 제보 수는 반려 제외
+  const totalCount = approvedCount + pendingCount;
+
   const stats = [
-    { label: "전체 제보", count: safeSubmissions.length },
+    { label: "전체 제보", count: totalCount },
     { label: "승인 완료", count: approvedCount },
     { label: "승인 대기", count: pendingCount },
     { label: "반려", count: rejectedCount },
@@ -164,6 +180,7 @@ function ProfileSection({ user = {}, submissions = [] }) {
 
         <div className="profile__user-info">
           <h1 className="profile__name">{user?.nickname || "테스트사용자1"}</h1>
+
           {user?.isAdmin && <span className="badge-admin">관리자</span>}
         </div>
 
@@ -211,6 +228,7 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
       {accessTags.length > 0 && (
         <div className="submission-tag-group">
           <span className="submission-tag-label">접근성</span>
+
           <div className="submission-tag-list">
             {accessTags.map((tag, index) => (
               <span
@@ -227,6 +245,7 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
       {facilityTags.length > 0 && (
         <div className="submission-tag-group">
           <span className="submission-tag-label">시설</span>
+
           <div className="submission-tag-list">
             {facilityTags.map((tag, index) => (
               <span
@@ -243,6 +262,7 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
       {benefitTags.length > 0 && (
         <div className="submission-tag-group">
           <span className="submission-tag-label">결제 혜택</span>
+
           <div className="submission-tag-list">
             {benefitTags.map((tag, index) => (
               <span
@@ -281,6 +301,7 @@ function Timeline({
 
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a?.created_at || a?.createdAt || 0).getTime();
+
       const dateB = new Date(b?.created_at || b?.createdAt || 0).getTime();
 
       if (dateA !== dateB) {
@@ -336,8 +357,8 @@ function Timeline({
             {list.map((item) => {
               if (!item) return null;
 
-              const place =
-                places && item.place_id ? places[item.place_id] : null;
+              const placeId = Number(item.place_id);
+              const place = places?.[placeId] || null;
 
               const storeName =
                 place?.name || item.place_name || `장소 ${item.place_id || ""}`;
@@ -371,11 +392,13 @@ function Timeline({
                           <span className="card__store">
                             {item.user_nickname || `사용자 ${item.user_id}`}
                           </span>
+
                           <span className="card__dong">{storeName}</span>
                         </>
                       ) : (
                         <>
                           <span className="card__store">{storeName}</span>
+
                           {floor && <span className="card__dong">{floor}</span>}
                         </>
                       )}
@@ -418,6 +441,7 @@ function Timeline({
                       <span className="submission-review-label">
                         작성한 리뷰
                       </span>
+
                       <p className="card__inline-comment">{userComment}</p>
                     </div>
                   )}
@@ -475,6 +499,7 @@ function Missions({ points }) {
               <span className="mission__title">
                 {i + 1}. {m.title}
               </span>
+
               <span className="mission__point">{m.point}P</span>
             </div>
 
@@ -517,6 +542,7 @@ export default function MySubmissionsPage() {
     }));
   }, [isAdmin]);
 
+  // 사용자 정보 조회
   useEffect(() => {
     if (isAdmin) return;
 
@@ -544,6 +570,7 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin]);
 
+  // 제보 및 장소 데이터 조회
   useEffect(() => {
     let alive = true;
 
@@ -561,15 +588,26 @@ export default function MySubmissionsPage() {
             throw new Error("관리자 제보 조회 실패");
           }
 
-          submissionList = await res.json();
+          const submissionResult = await res.json();
+
+          submissionList = Array.isArray(submissionResult)
+            ? submissionResult
+            : submissionResult?.items ||
+              submissionResult?.submissions ||
+              submissionResult?.data ||
+              [];
         } else {
           const submissionResult = await getMySubmissions();
 
           submissionList = Array.isArray(submissionResult)
             ? submissionResult
-            : submissionResult?.items || [];
+            : submissionResult?.items ||
+              submissionResult?.submissions ||
+              submissionResult?.data ||
+              [];
         }
 
+        // 장소 목록 조회 및 ID별 매핑
         let placeMap = {};
 
         try {
@@ -577,12 +615,15 @@ export default function MySubmissionsPage() {
 
           if (placesResponse.ok) {
             const placesData = await placesResponse.json();
+            const placeList = normalizePlaceList(placesData);
 
-            (Array.isArray(placesData) ? placesData : []).forEach((place) => {
-              if (place && place.id) {
-                placeMap[place.id] = place;
+            placeList.forEach((place) => {
+              if (place?.id != null) {
+                placeMap[Number(place.id)] = place;
               }
             });
+          } else {
+            console.warn("장소 목록 조회 실패:", placesResponse.status);
           }
         } catch (e) {
           console.warn("장소 목록 조회 실패:", e);
@@ -618,6 +659,7 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin, reloadKey]);
 
+  // 포인트 조회
   useEffect(() => {
     if (isAdmin) return;
 
@@ -625,7 +667,9 @@ export default function MySubmissionsPage() {
 
     getMyPoints(DEMO_USER_ID)
       .then((result) => {
-        if (alive) setPoints(result?.points ?? 100);
+        if (alive) {
+          setPoints(result?.points ?? 100);
+        }
       })
       .catch(() => {
         if (alive) setPoints(0);
@@ -636,6 +680,7 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin, reloadKey]);
 
+  // 관리자 승인 / 반려
   const onReview = async (id, status) => {
     let rejectReason;
 
@@ -672,6 +717,7 @@ export default function MySubmissionsPage() {
       setReloadKey((key) => key + 1);
     } catch (err) {
       console.error("제보 심사 실패:", err);
+
       window.alert("처리하지 못했어요. 잠시 후 다시 시도해 주세요.");
     } finally {
       setBusyId(null);
