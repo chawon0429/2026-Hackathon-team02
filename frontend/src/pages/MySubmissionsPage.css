@@ -13,139 +13,332 @@
   color: #111;
   display: flex;
   flex-direction: column;
-  font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-family:
+    "Pretendard",
+    -apple-system,
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    sans-serif;
 }
-.mypage button { 
-  font: inherit; color: inherit; cursor: pointer; 
+.mypage button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
-.mypage ul { 
-  list-style: none; margin: 0; padding: 0; 
+.mypage ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.mypage__topbar { 
-  height: 40px; background: var(--blue); 
+.mypage__topbar {
+  height: 40px;
+  background: var(--blue);
 }
-.mypage__body { 
-  flex: 1; padding-bottom: 96px;
+.mypage__body {
+  flex: 1;
+  padding-bottom: 96px;
 }
 
 /* 프로필 */
-.profile { 
-  padding: 18px var(--pad) 14px; border-bottom: 1px solid #ddd; 
+.profile {
+  padding: 18px var(--pad) 14px;
+  border-bottom: 1px solid #ddd;
 }
-.profile__row { 
-  display: flex; align-items: center; gap: 12px; 
+.profile__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.profile__avatar { 
-  width: 52px; height: 52px; border-radius: 50%; background: var(--gray); flex: none; 
+.profile__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--gray);
+  flex: none;
 }
-.profile__name { 
-  margin: 0; font-size: 24px; font-weight: 600; 
+.profile__name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
 }
-.badge-admin { 
-  background: var(--blue-soft); font-size: 13px; padding: 4px 10px; border-radius: 6px; 
+.badge-admin {
+  background: var(--blue-soft);
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
 }
 .btn-logout {
-  margin-left: auto; background: #fff; border: 2px solid var(--blue);
-  border-radius: 4px; padding: 0 10px; min-height: 44px; font-size: 13px; font-weight: 700;
+  margin-left: auto;
+  background: #fff;
+  border: 2px solid var(--blue);
+  border-radius: 4px;
+  padding: 0 10px;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 700;
 }
-.stats { 
-  display: flex; gap: 8px; margin-top: 14px; 
+.stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
 }
 .stat {
-  flex: 1; display: flex; align-items: center; justify-content: center; gap: 3px;
-  background: #fff; border: 1px solid #777; border-radius: 8px; padding: 4px 2px; min-height: 44px; font-size: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fff;
+  border: 1px solid #777;
+  border-radius: 8px;
+  padding: 4px 2px;
+  min-height: 44px;
+  font-size: 12px;
 }
-.stat span { 
-  color: var(--gray-text); 
+.stat span {
+  color: var(--gray-text);
 }
 
 /* 섹션 */
-.section { 
-  padding: 18px var(--pad) 14px; border-bottom: 1px solid #ddd; 
+.section {
+  padding: 18px var(--pad) 14px;
+  border-bottom: 1px solid #ddd;
 }
-.section:last-child { 
-  border-bottom: 0; 
+.section:last-child {
+  border-bottom: 0;
 }
-.section__head { 
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; 
+.section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
-.section__head h2 { 
-  margin: 0; font-size: 20px; font-weight: 700; 
+.section__head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
 }
-.section__more { 
-  background: none; border: 0; padding: 4px; display: flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; 
+.section__more {
+  background: none;
+  border: 0;
+  padding: 4px;
+  display: flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 필터 */
-.filters { 
-  display: flex; align-items: center; gap: 10px; margin-bottom: 12px; 
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
 }
-.sort { 
-  border: 1px solid var(--line); border-radius: 8px; padding: 0 6px; min-height: 44px; font-size: 13px; background: #fff; 
+.sort {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 6px;
+  min-height: 44px;
+  font-size: 13px;
+  background: #fff;
 }
-.filters__divider { 
-  width: 1px; height: 22px; background: #ccc; 
+.filters__divider {
+  width: 1px;
+  height: 22px;
+  background: #ccc;
 }
-.tabs { 
-  display: flex; gap: 8px; 
+.tabs {
+  display: flex;
+  gap: 8px;
 }
-.tab { 
-  background: var(--gray); border: 0; border-radius: 6px; padding: 0 14px; min-height: 44px; font-size: 13px; 
+.tab {
+  background: var(--gray);
+  border: 0;
+  border-radius: 6px;
+  padding: 0 14px;
+  min-height: 44px;
+  font-size: 13px;
 }
-.tab.is-active { 
-  background: var(--blue-soft); color: var(--blue); font-weight: 700; 
+.tab.is-active {
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: 700;
 }
 
 /* 카드 */
-.cards { 
-  display: flex; flex-direction: column; gap: 10px; 
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .card {
-  display: flex; align-items: center; gap: 8px;
-  border: 1px solid var(--line); border-radius: 12px; padding: 12px 10px; background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 10px;
+  background: #fff;
 }
-.card__store { 
-  font-size: 16px; 
+.card__store {
+  font-size: 16px;
 }
-.card__dong { 
-  font-size: 13px; color: var(--gray-text); 
+.card__dong {
+  font-size: 13px;
+  color: var(--gray-text);
 }
 .status {
-  margin-left: auto; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 6px;
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 6px;
 }
-.status--approved { 
-  background: var(--blue); color: #fff; 
+.status--approved {
+  background: var(--blue);
+  color: #fff;
 }
-.status--pending { 
-  background: #fff; color: var(--blue); border: 1px dashed var(--blue); 
+.status--pending {
+  background: #fff;
+  color: var(--blue);
+  border: 1px dashed var(--blue);
 }
-.empty { 
-  color: var(--gray-text); font-size: 14px; text-align: center; padding: 20px 0; 
+.empty {
+  color: var(--gray-text);
+  font-size: 14px;
+  text-align: center;
+  padding: 20px 0;
 }
 
 /* 미션 */
-.card--mission { 
-  justify-content: space-between; padding: 12px 10px; 
+.card--mission {
+  justify-content: space-between;
+  padding: 12px 10px;
 }
-.card--mission.is-done { 
-  background: var(--blue-soft); 
+.card--mission.is-done {
+  background: var(--blue-soft);
 }
-.mission__row { 
-  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; 
+.mission__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.mission__title { 
-  font-size: 15px; 
+.mission__title {
+  font-size: 15px;
 }
-.card--mission.is-done .mission__title { 
-  font-weight: 700; 
+.card--mission.is-done .mission__title {
+  font-weight: 700;
 }
-.mission__point { 
-  font-size: 14px; font-weight: 700; color: var(--blue); 
+.mission__point {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
 }
 .check {
-  width: 24px; height: 24px; border-radius: 50%; flex: none;
-  border: 1px dashed var(--blue); display: grid; place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex: none;
+  border: 1px dashed var(--blue);
+  display: grid;
+  place-items: center;
 }
-.check.is-done { background: var(--blue); border-style: solid; }
-.mypage button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.check.is-done {
+  background: var(--blue);
+  border-style: solid;
+}
+.mypage button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+
+/*코드 추가*/ 
+
+
+
+
+
+
+
+
+
+
+/* 제보 카드 공통 정렬 */
+.card--submission {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 장소명 + 층 정보 */
+.card__place-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.card--submission .card__store {
+  flex: 0 1 auto;
+  min-width: 0;
+  word-break: keep-all;
+}
+
+.card--submission .card__dong {
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: #777;
+}
+
+/* 승인 완료 / 승인 대기 / 반려 공통 */
+.card--submission .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 108px;
+  height: 46px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* 상태별 색상 */
+.card--submission .status--approved {
+  background: #0057ed;
+  color: #fff;
+}
+
+.card--submission .status--pending {
+  background: #d9d9d9;
+  color: #222;
+}
+
+.card--submission .status--rejected {
+  background: #fce1e1;
+  color: #d93025;
+}
+
+/* 제보 내용 */
+.card--submission .card__content {
+  flex-basis: 100%;
+  margin: 8px 0 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* 반려 사유 */
+.card--submission .card__reject-reason {
+  color: #d93025;
+}

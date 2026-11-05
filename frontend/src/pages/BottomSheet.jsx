@@ -1,306 +1,700 @@
-import { useState, useRef, useEffect } from 'react';
-import './BottomSheet.css';
+// import { useState, useRef, useEffect } from 'react';
+// import './BottomSheet.css';
+// import accessIcon from "../assets/cat-access.svg";
+// import facilityIcon from "../assets/cat-facility.svg";
+// import menuIcon from "../assets/cat-menu.svg";
+// import benefitIcon from "../assets/cat-benefit.svg";
+// import orderIcon from "../assets/cat-order.svg";
+// import { CATEGORIES, MOCK_REVIEWS} from "../mocks/places";
+// import { useNavigate, useLocation } from "react-router-dom";
+// import like from "../assets/like.svg";
+
+// function BottomSheet({ place }) {
+//     const navigate = useNavigate();
+//     const location = useLocation();
+//     const CATEGORY_ICONS = {
+//         access: accessIcon,
+//         facility: facilityIcon,
+//         menu: menuIcon,
+//         benefit: benefitIcon,
+//         order: orderIcon,
+//     };
+//     const [isOpen, setIsOpen] = useState(
+//         location.state?.openReviews === true
+//     );
+//     const [dragHeight, setDragHeight] = useState(null);
+//     const startRef = useRef(null);
+//     const contentTouchStartY = useRef(null);
+//     const [categoryKey, setCategoryKey] = useState("access");
+//     const [likedReviews, setLikedReviews] = useState([]);
+//     const [showAllReviews, setShowAllReviews] = useState(
+//         location.state?.openReviews === true
+//     );
+//     const facts = place?.facts?.[categoryKey] || {};
+//     const reviewPhotos = [
+//         place?.thumb,
+//         ...(place?.photos || [])
+//     ].filter(Boolean);
+
+//     const reviews = MOCK_REVIEWS.filter(
+//         (review) => String(review.id) === String(place?.id)
+//     );
+
+//     function toggleSheet() {
+//         setIsOpen(!isOpen);
+//     }
+
+//     function handle(e) {
+//         e.currentTarget.setPointerCapture(e.pointerId);
+//         startRef.current = {y: e.clientY, height: e.currentTarget.parentElement.offsetHeight};
+//     }
+
+//     function handlemove(e) {
+//         if (startRef.current === null) return;
+
+//         const distance = startRef.current.y - e.clientY;
+//         const minHeight = window.innerHeight * 0.4;
+//         const maxHeight = window.innerHeight - 114;
+//         const newHeight = startRef.current.height + distance;
+//         const height = Math.max(minHeight, Math.min(maxHeight, newHeight));
+
+//         setDragHeight(height);
+//     }
+
+//     function handleUp(e) {
+//         if (startRef.current === null) return;
+//         const distance = e.clientY - startRef.current.y;
+//         if (distance < -10) {
+//             setIsOpen(true);
+//         } else if (distance > 10) {
+//             setIsOpen(false);
+//         }
+
+//         setDragHeight(null);
+//         startRef.current = null;
+//     }
+
+//     function handleCancel() {
+//         startRef.current = null;
+//         setDragHeight(null);
+//     }
+
+//     function handleContentWheel() {
+//         if (isOpen === false) {
+//             setIsOpen(true);
+//         }
+//     }
+
+//     function handleContentTouchStart(e) {
+//         contentTouchStartY.current = e.touches[0].clientY;
+//     }
+
+//     function handleContentTouchMove(e) {
+//         if (contentTouchStartY.current === null) return;
+
+//         const distance = contentTouchStartY.current - e.touches[0].clientY;
+
+//         if (distance > 20 && isOpen === false) {
+//             setIsOpen(true);
+//             contentTouchStartY.current = null;
+//         }
+//     }
+
+//     let sheetClass = 'bottom-sheet';
+
+//     if (isOpen === true) {
+//         sheetClass = 'bottom-sheet open';
+//     }
+
+//     let sheetStyle = {};
+
+//     if (dragHeight !== null) {
+//         sheetStyle = {height: dragHeight + 'px',transition: 'none'};
+//     }
+
+//     function toggleLike(reviewId) {
+//         if (likedReviews.includes(reviewId)) {
+//             setLikedReviews(
+//                 likedReviews.filter((id) => id !== reviewId)
+//             );
+//         } else {
+//             setLikedReviews([...likedReviews, reviewId]);
+//         }
+//     }
+
+//     return (
+//         <div className={sheetClass} style={sheetStyle}>
+//             <button className="sheet-handle"
+//             type="button"
+//             onClick={toggleSheet}
+//             onPointerDown={handle}
+//             onPointerMove={handlemove}
+//             onPointerUp={handleUp}
+//             onPointerCancel={handleCancel}
+//             >
+//                 <div className="handle-bar"></div>
+//             </button>
+//             <div className="sheet-content"
+//                 onWheel={handleContentWheel}
+//                 onTouchStart={handleContentTouchStart}
+//                 onTouchMove={handleContentTouchMove}
+//             >
+//                 <div className="sheet-categories">
+//                     {CATEGORIES.map((c) => (
+//                         <button
+//                             key={c.key}
+//                             type="button"
+//                             className={`sheet-category${categoryKey === c.key ? " is-active" : ""}`}
+//                             onClick={() => {
+//                                 setCategoryKey(c.key);
+//                                 setIsOpen(true);
+//                             }}
+//                         >
+//                             <img
+//                                 src={CATEGORY_ICONS[c.key]}
+//                                 alt=""
+//                                 width="32"
+//                                 height="32"
+//                             />
+//                             <span>{c.label}</span>
+//                         </button>
+//                     ))}
+//                 </div>
+
+//                 {categoryKey === "menu" ? (
+//                     <div className="sheet-menu-list">
+//                         {(place?.menuItems || []).map((menu) => (
+//                             <div className="sheet-menu-card" key={menu.id}>
+//                                 <div className="sheet-menu-info">
+//                                     <div>
+//                                         <h3>{menu.name}</h3>
+//                                         <p className="sheet-menu-price">
+//                                             {menu.price.toLocaleString()}원
+//                                         </p>
+//                                     </div>
+
+//                                     <p className="sheet-menu-description">
+//                                         {menu.description}
+//                                     </p>
+//                                 </div>
+
+//                                 <div className="sheet-menu-photo">
+//                                     {menu.image && (
+//                                         <img src={menu.image} alt={menu.name} />
+//                                     )}
+//                                 </div>
+//                             </div>
+//                         ))}
+
+//                         {(!place?.menuItems || place.menuItems.length === 0) && (
+//                             <p className="sheet-menu-empty">
+//                                 등록된 메뉴 정보가 없습니다.
+//                             </p>
+//                         )}
+//                     </div>
+//                 ) : (
+//                     <>
+
+//                     <ul className="sheet-facts">
+//                         {Object.entries(facts)
+//                             .filter(([, value]) => value === true)
+//                             .map(([label]) => (
+//                                 <li key={label}>
+//                                     <span className="sheet-check">✓</span>
+//                                     <span>{label}</span>
+//                                 </li>
+//                             ))}
+//                     </ul>
+//                 <div className="sheet-divider"></div>
+//                 <h2>사진·영상 리뷰</h2>
+
+//                 <div className="sheet-review-photos">
+//                     {reviewPhotos.length > 0 ? (
+//                         reviewPhotos.map((photo, index) => (
+//                             <button
+//                                 type="button"
+//                                 className="sheet-review-photo"
+//                                 key={index}
+//                             >
+//                                 <img src={photo} alt={`${place.name} 사진 ${index + 1}`} />
+//                             </button>
+//                         ))
+//                     ) : (
+//                         <div className="sheet-review-empty">
+//                             사진 정보가 없습니다.
+//                         </div>
+//                     )}
+//                 </div>
+//                 <div className="sheet-divider"></div>
+//                 <div className="sheet-review-write">
+//                     <h2>
+//                         <span>{place?.name}</span> 다녀오셨나요?
+//                         <br />
+//                         소중한 리뷰를 남겨주세요!
+//                     </h2>
+
+//                     <button
+//                         type="button"
+//                         className="sheet-review-write-button"
+//                         onClick={() => navigate("/submission?placeId=" + place.id)}
+//                     >
+//                         리뷰 작성하기
+//                     </button>
+//                 </div>
+//                 <div className="sheet-divider"></div>
+//                 <div className="sheet-review-list">
+//                     <div className="sheet-review-list-title">
+//                         <h2>
+//                             리뷰 <span>{reviews.length}</span>
+//                         </h2>
+
+//                         <button
+//                             type="button"
+//                             className={`sheet-review-arrow${!showAllReviews ? " is-right" : ""}`}
+//                             onClick={() => setShowAllReviews(!showAllReviews)}
+//                             aria-expanded={showAllReviews}
+//                         >
+//                             {showAllReviews ? "⌄" : "›"}
+//                         </button>
+//                     </div>
+
+//                     {reviews.length > 0 ? (
+//                         reviews
+//                             .slice(0, showAllReviews ? reviews.length : 2)
+//                             .map((review) => (
+//                             <div className="sheet-review-item" key={review.reviewId}>
+//                                 <div className="sheet-review-profile"></div>
+
+//                                 <div className="sheet-review-info">
+//                                     <div className="sheet-review-user">
+//                                         <strong>{review.nickname}</strong>
+//                                         <span>{review.date}</span>
+//                                     </div>
+
+//                                     <p>{review.content}</p>
+
+//                                     <button
+//                                         type="button"
+//                                         className={`sheet-review-like${likedReviews.includes(review.reviewId) ? " is-liked" : ""}`}
+//                                         onClick={() => toggleLike(review.reviewId)}
+//                                         aria-pressed={likedReviews.includes(review.reviewId)}
+//                                     >
+//                                         <img src={like} alt="" />
+//                                         좋아요 {review.likes + (likedReviews.includes(review.reviewId) ? 1 : 0)}
+//                                     </button>
+//                                 </div>
+
+//                                 <span className="sheet-review-more">⋮</span>
+//                             </div>
+//                         ))
+//                     ) : (
+//                         <p className="sheet-review-empty">
+//                             아직 작성된 리뷰가 없습니다.
+//                         </p>
+//                     )}
+//                 </div>
+
+//     </>
+// )}
+//             </div>
+
+//         </div>
+//     );
+// }
+
+// export default BottomSheet;
+
+import { useState, useRef, useEffect } from "react";
+import "./BottomSheet.css";
 import accessIcon from "../assets/cat-access.svg";
 import facilityIcon from "../assets/cat-facility.svg";
 import menuIcon from "../assets/cat-menu.svg";
 import benefitIcon from "../assets/cat-benefit.svg";
 import orderIcon from "../assets/cat-order.svg";
-import { CATEGORIES, MOCK_REVIEWS} from "../mocks/places";
+import { CATEGORIES } from "../mocks/places";
 import { useNavigate, useLocation } from "react-router-dom";
 import like from "../assets/like.svg";
 
 function BottomSheet({ place }) {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const CATEGORY_ICONS = {
-        access: accessIcon,
-        facility: facilityIcon,
-        menu: menuIcon,
-        benefit: benefitIcon,
-        order: orderIcon,
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const CATEGORY_ICONS = {
+    access: accessIcon,
+    facility: facilityIcon,
+    menu: menuIcon,
+    benefit: benefitIcon,
+    order: orderIcon,
+  };
+
+  const [isOpen, setIsOpen] = useState(location.state?.openReviews === true);
+
+  const [dragHeight, setDragHeight] = useState(null);
+  const startRef = useRef(null);
+  const contentTouchStartY = useRef(null);
+
+  const [categoryKey, setCategoryKey] = useState("access");
+  const [likedReviews, setLikedReviews] = useState([]);
+
+  const [showAllReviews, setShowAllReviews] = useState(
+    location.state?.openReviews === true,
+  );
+
+  // 실제 DB 리뷰 상태
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState(false);
+
+  const facts = place?.facts?.[categoryKey] || {};
+
+  const reviewPhotos = [place?.thumb, ...(place?.photos || [])].filter(Boolean);
+
+  // 승인된 실제 DB 리뷰 조회
+  useEffect(() => {
+    if (!place?.dbId) {
+      setReviews([]);
+      setReviewsError(false);
+      return;
+    }
+
+    const fetchReviews = async () => {
+      try {
+        setReviewsLoading(true);
+        setReviewsError(false);
+
+        const url = "/api/v1/admin/submissions?status=approved";
+
+        console.log("[리뷰 조회 요청]", url);
+        console.log("[선택 장소]", place.name, "DB ID:", place.dbId);
+
+        const response = await fetch(url);
+        const responseText = await response.text();
+
+        console.log("[리뷰 조회 응답]", response.status);
+
+        if (!response.ok) {
+          throw new Error(
+            `HTTP ${response.status}: ${responseText || "응답 내용 없음"}`,
+          );
+        }
+
+        const data = JSON.parse(responseText);
+
+        if (!Array.isArray(data)) {
+          throw new Error("리뷰 응답 데이터가 배열이 아닙니다.");
+        }
+
+        // 현재 장소의 승인된 리뷰만 필터링
+        const approvedReviews = data.filter(
+          (review) =>
+            String(review.place_id) === String(place.dbId) &&
+            review.status === "approved",
+        );
+
+        console.log("[전체 승인 리뷰]", data);
+        console.log("[해당 장소 승인 리뷰]", approvedReviews);
+
+        setReviews(
+          approvedReviews.map((review) => ({
+            reviewId: review.id,
+            nickname: `사용자 ${review.user_id}`,
+            date: review.created_at ? review.created_at.slice(0, 10) : "",
+            content: review.content,
+            likes: 0,
+          })),
+        );
+      } catch (error) {
+        console.error("[리뷰 조회 오류]", error);
+
+        setReviewsError(true);
+        setReviews([]);
+      } finally {
+        setReviewsLoading(false);
+      }
     };
-    const [isOpen, setIsOpen] = useState(
-        location.state?.openReviews === true
-    );
-    const [dragHeight, setDragHeight] = useState(null);
-    const startRef = useRef(null);
-    const contentTouchStartY = useRef(null);
-    const [categoryKey, setCategoryKey] = useState("access");
-    const [likedReviews, setLikedReviews] = useState([]);
-    const [showAllReviews, setShowAllReviews] = useState(
-        location.state?.openReviews === true
-    );
-    const facts = place?.facts?.[categoryKey] || {};
-    const reviewPhotos = [
-        place?.thumb,
-        ...(place?.photos || [])
-    ].filter(Boolean);
 
-    const reviews = MOCK_REVIEWS.filter(
-        (review) => String(review.id) === String(place?.id)
-    );
+    fetchReviews();
+  }, [place?.dbId, place?.name]);
 
-    function toggleSheet() {
-        setIsOpen(!isOpen);
-    }
-    
-    function handle(e) {
-        e.currentTarget.setPointerCapture(e.pointerId);
-        startRef.current = {y: e.clientY, height: e.currentTarget.parentElement.offsetHeight};
-    }
+  function toggleSheet() {
+    setIsOpen(!isOpen);
+  }
 
-    function handlemove(e) {
-        if (startRef.current === null) return;
+  function handle(e) {
+    e.currentTarget.setPointerCapture(e.pointerId);
 
-        const distance = startRef.current.y - e.clientY;
-        const minHeight = window.innerHeight * 0.4;
-        const maxHeight = window.innerHeight - 114;
-        const newHeight = startRef.current.height + distance;
-        const height = Math.max(minHeight, Math.min(maxHeight, newHeight));
+    startRef.current = {
+      y: e.clientY,
+      height: e.currentTarget.parentElement.offsetHeight,
+    };
+  }
 
-        setDragHeight(height);
-    }
+  function handlemove(e) {
+    if (startRef.current === null) return;
 
-    function handleUp(e) {
-        if (startRef.current === null) return;
-        const distance = e.clientY - startRef.current.y;
-        if (distance < -10) {
-            setIsOpen(true);
-        } else if (distance > 10) {
-            setIsOpen(false);
-        }
+    const distance = startRef.current.y - e.clientY;
+    const minHeight = window.innerHeight * 0.4;
+    const maxHeight = window.innerHeight - 114;
+    const newHeight = startRef.current.height + distance;
 
-        setDragHeight(null);
-        startRef.current = null;
+    const height = Math.max(minHeight, Math.min(maxHeight, newHeight));
+
+    setDragHeight(height);
+  }
+
+  function handleUp(e) {
+    if (startRef.current === null) return;
+
+    const distance = e.clientY - startRef.current.y;
+
+    if (distance < -10) {
+      setIsOpen(true);
+    } else if (distance > 10) {
+      setIsOpen(false);
     }
 
-    function handleCancel() {
-        startRef.current = null;
-        setDragHeight(null);
+    setDragHeight(null);
+    startRef.current = null;
+  }
+
+  function handleCancel() {
+    startRef.current = null;
+    setDragHeight(null);
+  }
+
+  function handleContentWheel() {
+    if (isOpen === false) {
+      setIsOpen(true);
     }
+  }
 
-    function handleContentWheel() {
-        if (isOpen === false) {
-            setIsOpen(true);
-        }
+  function handleContentTouchStart(e) {
+    contentTouchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleContentTouchMove(e) {
+    if (contentTouchStartY.current === null) return;
+
+    const distance = contentTouchStartY.current - e.touches[0].clientY;
+
+    if (distance > 20 && isOpen === false) {
+      setIsOpen(true);
+      contentTouchStartY.current = null;
     }
+  }
 
-    function handleContentTouchStart(e) {
-        contentTouchStartY.current = e.touches[0].clientY;
+  let sheetClass = "bottom-sheet";
+
+  if (isOpen === true) {
+    sheetClass = "bottom-sheet open";
+  }
+
+  let sheetStyle = {};
+
+  if (dragHeight !== null) {
+    sheetStyle = {
+      height: dragHeight + "px",
+      transition: "none",
+    };
+  }
+
+  function toggleLike(reviewId) {
+    if (likedReviews.includes(reviewId)) {
+      setLikedReviews(likedReviews.filter((id) => id !== reviewId));
+    } else {
+      setLikedReviews([...likedReviews, reviewId]);
     }
+  }
 
-    function handleContentTouchMove(e) {
-        if (contentTouchStartY.current === null) return;
+  return (
+    <div className={sheetClass} style={sheetStyle}>
+      <button
+        className="sheet-handle"
+        type="button"
+        onClick={toggleSheet}
+        onPointerDown={handle}
+        onPointerMove={handlemove}
+        onPointerUp={handleUp}
+        onPointerCancel={handleCancel}
+      >
+        <div className="handle-bar"></div>
+      </button>
 
-        const distance = contentTouchStartY.current - e.touches[0].clientY;
-
-        if (distance > 20 && isOpen === false) {
-            setIsOpen(true);
-            contentTouchStartY.current = null;
-        }
-    }
-
-    let sheetClass = 'bottom-sheet';
-    
-    if (isOpen === true) {
-        sheetClass = 'bottom-sheet open';
-    }
-
-    let sheetStyle = {};
-
-    if (dragHeight !== null) {
-        sheetStyle = {height: dragHeight + 'px',transition: 'none'};
-    }
-
-    function toggleLike(reviewId) {
-        if (likedReviews.includes(reviewId)) {
-            setLikedReviews(
-                likedReviews.filter((id) => id !== reviewId)
-            );
-        } else {
-            setLikedReviews([...likedReviews, reviewId]);
-        }
-    }
-
-    return (
-        <div className={sheetClass} style={sheetStyle}>
-            <button className="sheet-handle" 
-            type="button"
-            onClick={toggleSheet}
-            onPointerDown={handle}
-            onPointerMove={handlemove}
-            onPointerUp={handleUp}
-            onPointerCancel={handleCancel}
+      <div
+        className="sheet-content"
+        onWheel={handleContentWheel}
+        onTouchStart={handleContentTouchStart}
+        onTouchMove={handleContentTouchMove}
+      >
+        <div className="sheet-categories">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              className={`sheet-category${
+                categoryKey === c.key ? " is-active" : ""
+              }`}
+              onClick={() => {
+                setCategoryKey(c.key);
+                setIsOpen(true);
+              }}
             >
-                <div className="handle-bar"></div>
+              <img src={CATEGORY_ICONS[c.key]} alt="" width="32" height="32" />
+              <span>{c.label}</span>
             </button>
-            <div className="sheet-content"
-                onWheel={handleContentWheel}
-                onTouchStart={handleContentTouchStart}
-                onTouchMove={handleContentTouchMove}
-            >
-                <div className="sheet-categories">
-                    {CATEGORIES.map((c) => (
-                        <button
-                            key={c.key}
-                            type="button"
-                            className={`sheet-category${categoryKey === c.key ? " is-active" : ""}`}
-                            onClick={() => {
-                                setCategoryKey(c.key);
-                                setIsOpen(true);
-                            }}
-                        >
-                            <img
-                                src={CATEGORY_ICONS[c.key]}
-                                alt=""
-                                width="32"
-                                height="32"
-                            />
-                            <span>{c.label}</span>
-                        </button>
-                    ))}
+          ))}
+        </div>
+
+        {categoryKey === "menu" ? (
+          <div className="sheet-menu-list">
+            {(place?.menuItems || []).map((menu) => (
+              <div className="sheet-menu-card" key={menu.id}>
+                <div className="sheet-menu-info">
+                  <div>
+                    <h3>{menu.name}</h3>
+
+                    <p className="sheet-menu-price">
+                      {menu.price.toLocaleString()}원
+                    </p>
+                  </div>
+
+                  <p className="sheet-menu-description">{menu.description}</p>
                 </div>
 
-                {categoryKey === "menu" ? (
-                    <div className="sheet-menu-list">
-                        {(place?.menuItems || []).map((menu) => (
-                            <div className="sheet-menu-card" key={menu.id}>
-                                <div className="sheet-menu-info">
-                                    <div>
-                                        <h3>{menu.name}</h3>
-                                        <p className="sheet-menu-price">
-                                            {menu.price.toLocaleString()}원
-                                        </p>
-                                    </div>
-
-                                    <p className="sheet-menu-description">
-                                        {menu.description}
-                                    </p>
-                                </div>
-
-                                <div className="sheet-menu-photo">
-                                    {menu.image && (
-                                        <img src={menu.image} alt={menu.name} />
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-
-                        {(!place?.menuItems || place.menuItems.length === 0) && (
-                            <p className="sheet-menu-empty">
-                                등록된 메뉴 정보가 없습니다.
-                            </p>
-                        )}
-                    </div>
-                ) : (
-                    <>
-                    
-                    <ul className="sheet-facts">
-                        {Object.entries(facts)
-                            .filter(([, value]) => value === true)
-                            .map(([label]) => (
-                                <li key={label}>
-                                    <span className="sheet-check">✓</span>
-                                    <span>{label}</span>
-                                </li>
-                            ))}
-                    </ul>
-                <div className="sheet-divider"></div>
-                <h2>사진·영상 리뷰</h2>
-
-                <div className="sheet-review-photos">
-                    {reviewPhotos.length > 0 ? (
-                        reviewPhotos.map((photo, index) => (
-                            <button
-                                type="button"
-                                className="sheet-review-photo"
-                                key={index}
-                            >
-                                <img src={photo} alt={`${place.name} 사진 ${index + 1}`} />
-                            </button>
-                        ))
-                    ) : (
-                        <div className="sheet-review-empty">
-                            사진 정보가 없습니다.
-                        </div>
-                    )}
+                <div className="sheet-menu-photo">
+                  {menu.image && <img src={menu.image} alt={menu.name} />}
                 </div>
-                <div className="sheet-divider"></div>
-                <div className="sheet-review-write">
-                    <h2>
-                        <span>{place?.name}</span> 다녀오셨나요?
-                        <br />
-                        소중한 리뷰를 남겨주세요!
-                    </h2>
+              </div>
+            ))}
 
-                    <button
-                        type="button"
-                        className="sheet-review-write-button"
-                        onClick={() => navigate("/submission?placeId=" + place.id)}
-                    >
-                        리뷰 작성하기
-                    </button>
-                </div>
-                <div className="sheet-divider"></div>
-                <div className="sheet-review-list">
-                    <div className="sheet-review-list-title">
-                        <h2>
-                            리뷰 <span>{reviews.length}</span>
-                        </h2>
+            {(!place?.menuItems || place.menuItems.length === 0) && (
+              <p className="sheet-menu-empty">등록된 메뉴 정보가 없습니다.</p>
+            )}
+          </div>
+        ) : (
+          <>
+            <ul className="sheet-facts">
+              {Object.entries(facts)
+                .filter(([, value]) => value === true)
+                .map(([label]) => (
+                  <li key={label}>
+                    <span className="sheet-check">✓</span>
+                    <span>{label}</span>
+                  </li>
+                ))}
+            </ul>
 
-                        <button
-                            type="button"
-                            className={`sheet-review-arrow${!showAllReviews ? " is-right" : ""}`}
-                            onClick={() => setShowAllReviews(!showAllReviews)}
-                            aria-expanded={showAllReviews}
-                        >
-                            {showAllReviews ? "⌄" : "›"}
-                        </button>
-                    </div>
+            <div className="sheet-divider"></div>
 
-                    {reviews.length > 0 ? (
-                        reviews
-                            .slice(0, showAllReviews ? reviews.length : 2)
-                            .map((review) => (
-                            <div className="sheet-review-item" key={review.reviewId}>
-                                <div className="sheet-review-profile"></div>
+            <h2>사진·영상 리뷰</h2>
 
-                                <div className="sheet-review-info">
-                                    <div className="sheet-review-user">
-                                        <strong>{review.nickname}</strong>
-                                        <span>{review.date}</span>
-                                    </div>
-
-                                    <p>{review.content}</p>
-
-                                    <button
-                                        type="button"
-                                        className={`sheet-review-like${likedReviews.includes(review.reviewId) ? " is-liked" : ""}`}
-                                        onClick={() => toggleLike(review.reviewId)}
-                                        aria-pressed={likedReviews.includes(review.reviewId)}
-                                    >
-                                        <img src={like} alt="" />
-                                        좋아요 {review.likes + (likedReviews.includes(review.reviewId) ? 1 : 0)}
-                                    </button>
-                                </div>
-
-                                <span className="sheet-review-more">⋮</span>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="sheet-review-empty">
-                            아직 작성된 리뷰가 없습니다.
-                        </p>
-                    )}
-                </div>
-
-
-    </>
-)}
+            <div className="sheet-review-photos">
+              {reviewPhotos.length > 0 ? (
+                reviewPhotos.map((photo, index) => (
+                  <button
+                    type="button"
+                    className="sheet-review-photo"
+                    key={index}
+                  >
+                    <img src={photo} alt={`${place.name} 사진 ${index + 1}`} />
+                  </button>
+                ))
+              ) : (
+                <div className="sheet-review-empty">사진 정보가 없습니다.</div>
+              )}
             </div>
 
-        </div>
-    );
+            <div className="sheet-divider"></div>
+
+            <div className="sheet-review-write">
+              <h2>
+                <span>{place?.name}</span> 다녀오셨나요?
+                <br />
+                소중한 리뷰를 남겨주세요!
+              </h2>
+
+              <button
+                type="button"
+                className="sheet-review-write-button"
+                onClick={() => navigate("/submission?placeId=" + place.id)}
+              >
+                리뷰 작성하기
+              </button>
+            </div>
+
+            <div className="sheet-divider"></div>
+
+            <div className="sheet-review-list">
+              <div className="sheet-review-list-title">
+                <h2>
+                  리뷰 <span>{reviews.length}</span>
+                </h2>
+
+                <button
+                  type="button"
+                  className={`sheet-review-arrow${
+                    !showAllReviews ? " is-right" : ""
+                  }`}
+                  onClick={() => setShowAllReviews(!showAllReviews)}
+                  aria-expanded={showAllReviews}
+                >
+                  {showAllReviews ? "⌄" : "›"}
+                </button>
+              </div>
+
+              {reviewsLoading ? (
+                <p className="sheet-review-empty">리뷰를 불러오는 중입니다.</p>
+              ) : reviewsError ? (
+                <p className="sheet-review-empty">
+                  리뷰를 불러오지 못했습니다.
+                </p>
+              ) : reviews.length > 0 ? (
+                reviews
+                  .slice(0, showAllReviews ? reviews.length : 2)
+                  .map((review) => (
+                    <div className="sheet-review-item" key={review.reviewId}>
+                      <div className="sheet-review-profile"></div>
+
+                      <div className="sheet-review-info">
+                        <div className="sheet-review-user">
+                          <strong>{review.nickname}</strong>
+
+                          <span>{review.date}</span>
+                        </div>
+
+                        <p>{review.content}</p>
+
+                        <button
+                          type="button"
+                          className={`sheet-review-like${
+                            likedReviews.includes(review.reviewId)
+                              ? " is-liked"
+                              : ""
+                          }`}
+                          onClick={() => toggleLike(review.reviewId)}
+                          aria-pressed={likedReviews.includes(review.reviewId)}
+                        >
+                          <img src={like} alt="" />
+                          좋아요{" "}
+                          {review.likes +
+                            (likedReviews.includes(review.reviewId) ? 1 : 0)}
+                        </button>
+                      </div>
+
+                      <span className="sheet-review-more">⋮</span>
+                    </div>
+                  ))
+              ) : (
+                <p className="sheet-review-empty">
+                  아직 작성된 리뷰가 없습니다.
+                </p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default BottomSheet;
