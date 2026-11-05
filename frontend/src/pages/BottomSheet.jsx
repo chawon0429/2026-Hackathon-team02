@@ -9,7 +9,73 @@ import { CATEGORIES, MOCK_REVIEWS} from "../mocks/places";
 import { useNavigate, useLocation } from "react-router-dom";
 import like from "../assets/like.svg";
 
-function BottomSheet({ place }) {
+function CommentWindow({ place, reviews, onClose, likedReviews, onToggleLike }) {
+    return (
+        <div className="comment-window">
+            <div className="comment-window-bluebar"></div>
+
+            <button
+                type="button"
+                className="comment-window-close"
+                onClick={onClose}
+                aria-label="닫기"
+            >
+                ×
+            </button>
+
+            <main className="comment-window-content">                
+                <p className="comment-window-place">
+                    {place?.name}
+                </p>
+                <h1>
+                    리뷰 <span>{reviews.length}</span>
+                </h1>
+
+
+
+                <div className="comment-window-list">
+                    {reviews.length > 0 ? (
+                        reviews.map((review) => {
+                            const reviewId = review.reviewId ?? review.id;
+
+                            return (
+                                <div className="sheet-review-item" key={reviewId}>
+                                    <div className="sheet-review-profile"></div>
+
+                                    <div className="sheet-review-info">
+                                        <div className="sheet-review-user">
+                                            <strong>{review.nickname}</strong>
+                                            {review.date && <span>{review.date}</span>}
+                                        </div>
+
+                                        <p>{review.content}</p>
+
+                                        {review.likes != null && (
+                                            <button
+                                                type="button"
+                                                className={`sheet-review-like${likedReviews.includes(reviewId) ? " is-liked" : ""}`}
+                                                onClick={() => onToggleLike(reviewId)}
+                                            >
+                                                <img src={like} alt="" />
+                                                좋아요 {review.likes + (likedReviews.includes(reviewId) ? 1 : 0)}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <p className="comment-window-empty">
+                            아직 작성된 리뷰가 없습니다.
+                        </p>
+                    )}
+                </div>
+            </main>
+        </div>
+    );
+}
+
+function BottomSheet({ place, sheetHeight }) {
     const navigate = useNavigate();
     const location = useLocation();
     const CATEGORY_ICONS = {
@@ -24,9 +90,11 @@ function BottomSheet({ place }) {
     );
     const [dragHeight, setDragHeight] = useState(null);
     const startRef = useRef(null);
+    const wasDragged = useRef(false);
     const contentTouchStartY = useRef(null);
     const [categoryKey, setCategoryKey] = useState("access");
     const [likedReviews, setLikedReviews] = useState([]);
+    const [showCommentWindow, setShowCommentWindow] = useState(false);
     const [showAllReviews, setShowAllReviews] = useState(
         location.state?.openReviews === true
     );
@@ -41,10 +109,16 @@ function BottomSheet({ place }) {
     );
 
     function toggleSheet() {
+        if (wasDragged.current) {
+            wasDragged.current = false;
+            return;
+        }
+
         setIsOpen(!isOpen);
     }
     
     function handle(e) {
+        wasDragged.current = false;
         e.currentTarget.setPointerCapture(e.pointerId);
         startRef.current = {y: e.clientY, height: e.currentTarget.parentElement.offsetHeight};
     }
@@ -53,8 +127,13 @@ function BottomSheet({ place }) {
         if (startRef.current === null) return;
 
         const distance = startRef.current.y - e.clientY;
-        const minHeight = window.innerHeight * 0.4;
-        const maxHeight = window.innerHeight - 114;
+
+        if (Math.abs(distance) > 10) {
+            wasDragged.current = true;
+        }
+
+        const minHeight = window.innerHeight * 0.2;
+        const maxHeight = window.innerHeight - 116;
         const newHeight = startRef.current.height + distance;
         const height = Math.max(minHeight, Math.min(maxHeight, newHeight));
 
@@ -109,7 +188,14 @@ function BottomSheet({ place }) {
     let sheetStyle = {};
 
     if (dragHeight !== null) {
-        sheetStyle = {height: dragHeight + 'px',transition: 'none'};
+        sheetStyle = {
+            height: dragHeight + 'px',
+            transition: 'none'
+        };
+    } else if (isOpen === false && sheetHeight !== null) {
+        sheetStyle = {
+            height: sheetHeight + 'px'
+        };
     }
 
     function toggleLike(reviewId) {
@@ -121,7 +207,17 @@ function BottomSheet({ place }) {
             setLikedReviews([...likedReviews, reviewId]);
         }
     }
-
+    if (showCommentWindow) {
+        return (
+            <CommentWindow
+                place={place}
+                reviews={reviews}
+                likedReviews={likedReviews}
+                onToggleLike={toggleLike}
+                onClose={() => setShowCommentWindow(false)}
+            />
+        );
+    }
     return (
         <div className={sheetClass} style={sheetStyle}>
             <button className="sheet-handle" 
@@ -250,18 +346,17 @@ function BottomSheet({ place }) {
 
                         <button
                             type="button"
-                            className={`sheet-review-arrow${reviews.length === 0 || !showAllReviews ? " is-right" : ""}`}
-                            onClick={() => setShowAllReviews(!showAllReviews)}
-                            disabled={reviews.length === 0}
-                            aria-expanded={reviews.length > 0 && showAllReviews}
+                            className="sheet-review-arrow is-right"
+                            onClick={() => setShowCommentWindow(true)}
+                            aria-label="전체 리뷰 보기"
                         >
-                            {reviews.length === 0 || !showAllReviews ? "›" : "⌄"}
+                            ›
                         </button>
                     </div>
 
                     {reviews.length > 0 ? (
                         reviews
-                            .slice(0, showAllReviews ? reviews.length : 2)
+                            .slice(0, 2)
                             .map((review) => (
                             <div className="sheet-review-item" key={review.reviewId}>
                                 <div className="sheet-review-profile"></div>

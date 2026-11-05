@@ -11,7 +11,7 @@ async function requestJson(url) {
 
         if (!contentType.includes("application/json")) {
             throw new Error(
-                `API가 JSON이 아닌 응답을 반환했습니다. (${response.status})`
+                `정보를 불러오는 중 문제가 발생했어요. 다시 시도해 주세요. (${response.status})`
             );
         }
 
@@ -27,7 +27,7 @@ async function requestJson(url) {
 
     } catch (err) {
         if (err.name === "AbortError") {
-            throw new Error("백엔드 응답 시간 초과. DB 연결을 확인하세요.");
+            throw new Error("정보를 불러오지 못했어요. 다시 시도해 주세요.");
         }
 
         throw err;

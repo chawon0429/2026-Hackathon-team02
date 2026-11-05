@@ -6,7 +6,7 @@
 
     width: 100%;
     max-width: 430px;
-    height: 30%;
+    height: 20%;
 
     background-color: white;
     border-radius: 20px 20px 0 0;
@@ -394,4 +394,74 @@
 
 .sheet-review-arrow.is-right {
     transform: translateY(0px);
+}
+
+
+.comment-window {
+    position: fixed;
+    top: 0;
+    bottom: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 100%;
+    max-width: 430px;
+
+    background-color: white;
+    z-index: 100;
+}
+
+.comment-window-bluebar {
+    height: 40px;
+    background-color: #0056EB;
+}
+
+.comment-window-close {
+    position: absolute;
+    top: 55px;
+    right: 18px;
+
+    background: none;
+    border: none;
+    padding: 0;
+
+    font-size: 36px;
+    font-weight: 400;
+    color: #111;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.comment-window-content {
+    height: calc(100% - 40px);
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 75px 20px 30px;
+}
+
+.comment-window-content h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.comment-window-content h1 span {
+    color: #0057e7;
+}
+
+.comment-window-place {
+    font-size: 14px;
+    color: #666;
+    margin: 0px 0 0px;
+}
+
+.comment-window .sheet-review-item {
+    padding: 18px 0;
+}
+
+.comment-window-empty {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    padding: 50px 0;
 }

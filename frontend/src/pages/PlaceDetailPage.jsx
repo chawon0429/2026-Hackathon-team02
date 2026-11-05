@@ -3,7 +3,8 @@ import { getPlace, getPlaceFacts } from "../api/places";
 import BottomSheet from "./BottomSheet";
 import './PlaceDetailPage.css';
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import AISummary from "../components/AI_Summary";
 
 
 function PlaceDetailPage() {
@@ -14,6 +15,12 @@ function PlaceDetailPage() {
     const [place, setPlace] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const mainRef = useRef(null);
+    const [sheetHeight, setSheetHeight] = useState(null);
+    const [showCommentWindow, setShowCommentWindow] = useState(
+        location.state?.openReviews === true
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -88,6 +95,45 @@ function PlaceDetailPage() {
         };
 
     }, [placeId]);
+    useEffect(() => {
+        if (!place || !mainRef.current) return;
+
+        const main = mainRef.current;
+
+        function updateSheetHeight() {
+            const paddingBottom =
+                parseFloat(getComputedStyle(main).paddingBottom) || 0;
+
+            const contentBottom =
+                main.getBoundingClientRect().bottom
+                + window.scrollY
+                - paddingBottom;
+
+            const availableHeight =
+                window.innerHeight - 76 - contentBottom - 16;
+
+            const maxHeight = window.innerHeight - 116;
+
+            const newHeight = Math.max(
+                window.innerHeight * 0.2,
+                Math.min(availableHeight, maxHeight)
+            );
+
+            setSheetHeight(newHeight);
+        }
+
+        updateSheetHeight();
+
+        const observer = new ResizeObserver(updateSheetHeight);
+        observer.observe(main);
+
+        window.addEventListener("resize", updateSheetHeight);
+
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", updateSheetHeight);
+        };
+    }, [place]);
 
     if (loading) {
         return (
@@ -134,7 +180,7 @@ function PlaceDetailPage() {
     return (
         <div className="place-detail">
             <div className="bluebar"></div>
-                <main className="detail-main">
+                <main className="detail-main" ref={mainRef}>
                     <button
                         className="back-button"
                         onClick={() => navigate(-1)}
@@ -164,15 +210,10 @@ function PlaceDetailPage() {
                             </div>
                         )}
                     </div> 
-                    <section className="ai-summary">
-                        <h2>AI요약</h2>
-                        <p>
-                            {place.aiSummary || "아직 AI 요약 정보가 없습니다."}
-                        </p>
-                    </section>                 
+                    <AISummary placeId={place.id} />              
                 </main>
 
-            <BottomSheet place={place} />
+            <BottomSheet place={place} sheetHeight={sheetHeight} />
 
             <BottomTabBar />
         </div>
