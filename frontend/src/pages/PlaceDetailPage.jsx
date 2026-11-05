@@ -55,12 +55,7 @@ function PlaceDetailPage() {
                             </div>
                         )}
                     </div> 
-                    <section className="ai-summary">
-                        <h2>AI요약</h2>
-                        <p>
-                                {place.aiSummary || "아직 AI 요약 정보가 없습니다."}
-                        </p>
-                    </section>                
+                    <AISummary placeId={place.id} />            
                 </main>
 
             <BottomSheet place={place} />

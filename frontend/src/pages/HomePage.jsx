@@ -9,6 +9,7 @@ import menuIcon from "../assets/cat-menu.svg";
 import benefitIcon from "../assets/cat-benefit.svg";
 import orderIcon from "../assets/cat-order.svg";
 import "./HomePage.css";
+import { summarizePlace } from "../api/analysis";
 
 const CATEGORY_ICONS = {
     access: accessIcon,
@@ -23,8 +24,36 @@ export default function HomePage() {
     const [query, setQuery] = useState("");
     const [categoryKey, setCategoryKey] = useState("access");
     const [picked, setPicked] = useState([]);
+    const [summary, setSummary] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [searchError, setSearchError] = useState("");
 
     const category = CATEGORIES.find((c) => c.key === categoryKey);
+
+    const handleSearch = async (e) => {
+  e.preventDefault();
+
+  const placeName = query.trim();
+
+  if (!placeName) {
+    setSummary("");
+    setSearchError("검색할 장소명을 입력해 주세요.");
+    return;
+  }
+
+  setLoading(true);
+  setSummary("");
+  setSearchError("");
+
+  try {
+    const result = await summarizePlace(placeName);
+    setSummary(result.summary);
+  } catch (error) {
+    setSearchError(error.message || "장소 검색에 실패했습니다.");
+  } finally {
+    setLoading(false);
+  }
+};
 
     const changeCategory = (key) => {
         setCategoryKey(key);
@@ -46,7 +75,7 @@ export default function HomePage() {
             <header className="home__header"><span className="home__logo">로고</span></header>
 
             <main className="home__body">
-                <form className="search" role="search" onSubmit={(e) => e.preventDefault()}>
+                <form className="search" role="search" onSubmit={handleSearch}>
                     <label htmlFor="search-input" className="sr-only">장소 검색</label>
                     <input id="search-input" className="search__input" value={query}
                         onChange={(e) => setQuery(e.target.value)} placeholder="장소명을 검색해 보세요" />
@@ -57,7 +86,20 @@ export default function HomePage() {
                         </svg>
                     </button>
                 </form>
+{loading && (
+  <p role="status">Google 검색으로 장소 정보를 확인하고 있어요...</p>
+)}
 
+{searchError && (
+  <p role="alert">{searchError}</p>
+)}
+
+{summary && (
+  <section className="place-summary" aria-live="polite">
+    <h2>AI 장소 검색 결과</h2>
+    <p>{summary}</p>
+  </section>
+)}
                 <div className="cats" role="tablist" aria-label="카테고리">
                 {CATEGORIES.map((c) => (
                     <button key={c.key} type="button" role="tab" aria-selected={categoryKey === c.key}
