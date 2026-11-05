@@ -1,17 +1,25 @@
-// 백엔드 호출 공통 함수. 주소와 에러 처리를 여기서만 해요.
-// 개발 중에는 vite 프록시가 /api 를 localhost:8000 으로 보내줘서 BASE 가 비어 있어도 돼요.
 const BASE = import.meta.env.VITE_API_BASE ?? "";
 
-export async function api(path, { params, ...options } = {}) {
+// 응답이 없을 때 화면이 계속 "불러오는 중"에 머무르지 않도록, 기본 8초 뒤에 포기함
+export async function api(path, { params, timeout = 8000, ...options } = {}) {
   const query = params
-    ? "?" + new URLSearchParams(
+    ? "?" +
+      new URLSearchParams(
         Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "")
       )
     : "";
-  const res = await fetch(`${BASE}/api/v1${path}${query}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!res.ok) throw new Error(`API ${res.status} ${path}`);
-  return res.status === 204 ? null : res.json();
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(`${BASE}/api/v1${path}${query}`, {
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      ...options,
+    });
+    if (!res.ok) throw new Error(`API ${res.status} ${path}`);
+    return res.status === 204 ? null : await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
