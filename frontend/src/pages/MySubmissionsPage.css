@@ -417,3 +417,77 @@
   border: 2px dashed #a0aec0;
   background: transparent;
 }
+
+/* 제보 리뷰 / 카테고리 분리 표시 */
+
+.submission-review-content {
+  margin-top: 12px;
+}
+
+.submission-review-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a8a8a;
+}
+
+.submission-review-content .card__inline-comment {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #333333;
+}
+
+.submission-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.submission-tag-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.submission-tag-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a8a8a;
+}
+
+.submission-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.submission-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.submission-tag--access {
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+}
+
+.submission-tag--facility {
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+}
+
+.submission-tag--benefit {
+  color: #57534e;
+  background: #f5f5f4;
+  border: 1px solid #e7e5e4;
+}

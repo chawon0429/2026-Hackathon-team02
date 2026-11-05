@@ -182,7 +182,6 @@ function SubmissionPage() {
     console.log("[3] 제보 데이터:", submissionData);
 
     try {
-      // 기존 API 모듈을 이용해 실제 DB 저장
       const result = await createSubmission(submissionData);
 
       console.log("제보 등록 성공:", result);
@@ -294,13 +293,17 @@ function SubmissionPage() {
           </div>
         </button>
 
+        {/* 작성한 리뷰 확인 → 마이페이지 */}
         <div className="complete-review">
           <button
             type="button"
             className="complete-review-button"
             onClick={() =>
-              navigate(`/places/${place.id}`, {
-                state: { openReviews: true },
+              navigate("/mypage", {
+                state: {
+                  tab: "all",
+                  sort: "latest",
+                },
               })
             }
           >

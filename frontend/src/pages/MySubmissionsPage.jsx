@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import BottomTabBar from "../components/BottomTabBar";
 import { getMySubmissions } from "../api/submission";
 import { getUser } from "../api/user";
@@ -57,6 +57,60 @@ function getFloor(address) {
   return match ? match[0].replace(/\s/g, "") : "";
 }
 
+// 배열 또는 문자열 형태의 카테고리 정리
+function normalizeTags(value) {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value.filter(Boolean).map(String);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+// content에서 리뷰 본문과 결제 혜택 분리
+function parseSubmissionContent(content) {
+  if (!content) {
+    return {
+      review: "",
+      benefits: [],
+    };
+  }
+
+  const lines = String(content).split("\n");
+  const reviewLines = [];
+  const benefits = [];
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("결제 혜택:")) {
+      const benefitText = trimmed.replace("결제 혜택:", "").trim();
+
+      benefits.push(
+        ...benefitText
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+      );
+    } else if (trimmed) {
+      reviewLines.push(line);
+    }
+  });
+
+  return {
+    review: reviewLines.join("\n").trim(),
+    benefits,
+  };
+}
+
 function CheckedCircleIcon() {
   return (
     <div className="mission-check-circle is-done">
@@ -80,23 +134,24 @@ function UncheckedCircleIcon() {
   return <div className="mission-check-circle is-undone" />;
 }
 
-// 상단 프로필 및 단순 수치 요약 영역 (화살표 없는 요약 카드 형태)
+// 프로필
 function ProfileSection({ user = {}, submissions = [] }) {
   const safeSubmissions = Array.isArray(submissions) ? submissions : [];
 
   const approvedCount = safeSubmissions.filter(
     (s) => s && s.status === "approved",
   ).length;
+
   const pendingCount = safeSubmissions.filter(
     (s) => s && s.status === "pending",
   ).length;
+
   const rejectedCount = safeSubmissions.filter(
     (s) => s && s.status === "rejected",
   ).length;
-  const totalCount = safeSubmissions.length;
 
   const stats = [
-    { label: "전체 제보", count: totalCount },
+    { label: "전체 제보", count: safeSubmissions.length },
     { label: "승인 완료", count: approvedCount },
     { label: "승인 대기", count: pendingCount },
     { label: "반려", count: rejectedCount },
@@ -106,6 +161,7 @@ function ProfileSection({ user = {}, submissions = [] }) {
     <section className="profile">
       <div className="profile__row">
         <div className="profile__avatar" aria-hidden="true" />
+
         <div className="profile__user-info">
           <h1 className="profile__name">{user?.nickname || "테스트사용자1"}</h1>
           {user?.isAdmin && <span className="badge-admin">관리자</span>}
@@ -116,7 +172,6 @@ function ProfileSection({ user = {}, submissions = [] }) {
         </button>
       </div>
 
-      {/* 화살표 없는 요약식 통계 칩 */}
       <div className="stats">
         {stats.map((s) => (
           <div key={s.label} className="stat">
@@ -137,7 +192,74 @@ function SectionHeader({ title }) {
   );
 }
 
-// 내 타임라인 (정렬 + 세로선 + 탭 + 가게명 아래 소형 리뷰 텍스트 노출)
+// 제보 카테고리 표시
+function SubmissionTags({ accessibility, facilities, benefits }) {
+  const accessTags = normalizeTags(accessibility);
+  const facilityTags = normalizeTags(facilities);
+  const benefitTags = normalizeTags(benefits);
+
+  if (
+    accessTags.length === 0 &&
+    facilityTags.length === 0 &&
+    benefitTags.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    <div className="submission-tags">
+      {accessTags.length > 0 && (
+        <div className="submission-tag-group">
+          <span className="submission-tag-label">접근성</span>
+          <div className="submission-tag-list">
+            {accessTags.map((tag, index) => (
+              <span
+                className="submission-tag submission-tag--access"
+                key={`access-${index}`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {facilityTags.length > 0 && (
+        <div className="submission-tag-group">
+          <span className="submission-tag-label">시설</span>
+          <div className="submission-tag-list">
+            {facilityTags.map((tag, index) => (
+              <span
+                className="submission-tag submission-tag--facility"
+                key={`facility-${index}`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {benefitTags.length > 0 && (
+        <div className="submission-tag-group">
+          <span className="submission-tag-label">결제 혜택</span>
+          <div className="submission-tag-list">
+            {benefitTags.map((tag, index) => (
+              <span
+                className="submission-tag submission-tag--benefit"
+                key={`benefit-${index}`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 내 타임라인
 function Timeline({
   isAdmin,
   submissions = [],
@@ -153,6 +275,7 @@ function Timeline({
 
   const list = useMemo(() => {
     const safeList = Array.isArray(submissions) ? submissions : [];
+
     const filtered =
       tab === "all" ? safeList : safeList.filter((s) => s && s.status === tab);
 
@@ -163,6 +286,7 @@ function Timeline({
       if (dateA !== dateB) {
         return sort === "latest" ? dateB - dateA : dateA - dateB;
       }
+
       return sort === "latest"
         ? (b?.id || 0) - (a?.id || 0)
         : (a?.id || 0) - (b?.id || 0);
@@ -173,7 +297,6 @@ function Timeline({
     <section className="section">
       <SectionHeader title={isAdmin ? "관리자 승인" : "내 타임라인"} />
 
-      {/* 최신순/오래된순 정렬 + 구분선 + 알약 탭 */}
       <div className="filters-row">
         <select
           className="sort-select"
@@ -203,7 +326,6 @@ function Timeline({
         </div>
       </div>
 
-      {/* 타임라인 카드 목록 */}
       <ul className="cards">
         {loading ? (
           <li className="empty">제보를 불러오는 중입니다.</li>
@@ -213,6 +335,7 @@ function Timeline({
           <>
             {list.map((item) => {
               if (!item) return null;
+
               const place =
                 places && item.place_id ? places[item.place_id] : null;
 
@@ -222,15 +345,22 @@ function Timeline({
               const floor =
                 getFloor(place?.address) || item.floor || place?.category || "";
 
-              // 작성된 실제 리뷰/코멘트 텍스트
+              // 리뷰와 결제 혜택 분리
+              const parsedContent = parseSubmissionContent(item.content);
+
               const userComment =
-                item.content ||
+                parsedContent.review ||
                 item.comment ||
                 item.description ||
                 item.text ||
                 item.details ||
                 item.review ||
                 "";
+
+              const benefits = [
+                ...parsedContent.benefits,
+                ...normalizeTags(item.benefits),
+              ];
 
               return (
                 <li key={item.id} className="card card--submission">
@@ -263,6 +393,7 @@ function Timeline({
                         >
                           승인
                         </button>
+
                         <button
                           type="button"
                           className="btn-reject"
@@ -281,12 +412,24 @@ function Timeline({
                     )}
                   </div>
 
-                  {/* 가게 이름 밑에 작은 크기/옅은 색상의 리뷰 코멘트 표시 */}
+                  {/* 일반 텍스트 리뷰 */}
                   {userComment && (
-                    <p className="card__inline-comment">{userComment}</p>
+                    <div className="submission-review-content">
+                      <span className="submission-review-label">
+                        작성한 리뷰
+                      </span>
+                      <p className="card__inline-comment">{userComment}</p>
+                    </div>
                   )}
 
-                  {/* 반려 항목 시 반려 사유 표시 */}
+                  {/* 접근성 / 시설 / 결제 혜택 태그 */}
+                  <SubmissionTags
+                    accessibility={item.accessibility}
+                    facilities={item.facilities}
+                    benefits={benefits}
+                  />
+
+                  {/* 반려 사유 */}
                   {item.status === "rejected" && (
                     <p className="card__inline-reject-reason">
                       반려 사유:{" "}
@@ -345,7 +488,10 @@ function Missions({ points }) {
 
 export default function MySubmissionsPage() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+
   const isAdmin = searchParams.get("admin") === "1";
+  const initialTab = location.state?.tab || "all";
 
   const [user, setUser] = useState({
     id: DEMO_USER_ID,
@@ -355,7 +501,7 @@ export default function MySubmissionsPage() {
 
   const [submissions, setSubmissions] = useState([]);
   const [places, setPlaces] = useState({});
-  const [tab, setTab] = useState(isAdmin ? "pending" : "approved");
+  const [tab, setTab] = useState(isAdmin ? "pending" : initialTab);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -379,6 +525,7 @@ export default function MySubmissionsPage() {
     getUser(DEMO_USER_ID)
       .then((userData) => {
         if (!alive || !userData) return;
+
         setUser({
           id: userData.id || DEMO_USER_ID,
           nickname: userData.nickname || "테스트사용자1",
@@ -409,26 +556,28 @@ export default function MySubmissionsPage() {
 
         if (isAdmin) {
           const res = await fetch(`${API_BASE}/admin/submissions`);
-          if (res.ok) {
-            submissionList = await res.json();
+
+          if (!res.ok) {
+            throw new Error("관리자 제보 조회 실패");
           }
+
+          submissionList = await res.json();
         } else {
-          try {
-            const submissionResult = await getMySubmissions();
-            submissionList = Array.isArray(submissionResult)
-              ? submissionResult
-              : submissionResult?.items || [];
-          } catch (e) {
-            console.warn("내 제보 조회 실패 (fallback):", e);
-            submissionList = [];
-          }
+          const submissionResult = await getMySubmissions();
+
+          submissionList = Array.isArray(submissionResult)
+            ? submissionResult
+            : submissionResult?.items || [];
         }
 
         let placeMap = {};
+
         try {
           const placesResponse = await fetch(`${API_BASE}/places`);
+
           if (placesResponse.ok) {
             const placesData = await placesResponse.json();
+
             (Array.isArray(placesData) ? placesData : []).forEach((place) => {
               if (place && place.id) {
                 placeMap[place.id] = place;
@@ -453,6 +602,7 @@ export default function MySubmissionsPage() {
         }
       } catch (err) {
         console.error("내 페이지 데이터 조회 실패:", err);
+
         if (alive) {
           setError("데이터를 불러오지 못했습니다.");
         }
