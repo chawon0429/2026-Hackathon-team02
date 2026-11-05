@@ -202,7 +202,6 @@ import "./MySubmissionsPage.css";
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
-// 로그인 기능이 없으므로 현재 테스트 사용자 ID 유지
 const DEMO_USER_ID = 1;
 
 const MOCK_MISSIONS = [
@@ -213,6 +212,7 @@ const MOCK_MISSIONS = [
 ];
 
 const TABS = [
+  { key: "all", label: "전체" },
   { key: "approved", label: "승인완료" },
   { key: "pending", label: "승인대기" },
 ];
@@ -222,6 +222,26 @@ const STATUS_LABEL = {
   pending: "승인 대기",
   rejected: "반려",
 };
+
+function normalizeStatus(status) {
+  const value = String(status || "")
+    .trim()
+    .toLowerCase();
+
+  if (["approved", "승인완료", "승인 완료"].includes(value)) {
+    return "approved";
+  }
+
+  if (["pending", "승인대기", "승인 대기"].includes(value)) {
+    return "pending";
+  }
+
+  if (["rejected", "반려"].includes(value)) {
+    return "rejected";
+  }
+
+  return value;
+}
 
 function Chevron() {
   return (
@@ -241,16 +261,22 @@ function Chevron() {
   );
 }
 
-function ProfileSection({ user, submissions }) {
+function ProfileSection({ user, submissions, onSelectTab }) {
   const stats = [
-    { label: "전체 제보", count: submissions.length },
+    {
+      label: "전체 제보",
+      count: submissions.length,
+      tab: "all",
+    },
     {
       label: "승인 완료",
       count: submissions.filter((s) => s.status === "approved").length,
+      tab: "approved",
     },
     {
       label: "승인 대기",
       count: submissions.filter((s) => s.status === "pending").length,
+      tab: "pending",
     },
   ];
 
@@ -263,20 +289,19 @@ function ProfileSection({ user, submissions }) {
 
         {user.isAdmin && <span className="badge-admin">관리자</span>}
 
-        <button
-          type="button"
-          className="btn-logout"
-          onClick={() => {
-            // 로그인 기능이 없으므로 로그아웃 처리 없음
-          }}
-        >
+        <button type="button" className="btn-logout" onClick={() => {}}>
           로그아웃
         </button>
       </div>
 
       <div className="stats">
         {stats.map((s) => (
-          <button type="button" key={s.label} className="stat">
+          <button
+            type="button"
+            key={s.label}
+            className="stat"
+            onClick={() => onSelectTab(s.tab)}
+          >
             <b>{s.label}</b>
             <span>{s.count}건</span>
             <Chevron />
@@ -304,7 +329,6 @@ function SectionHeader({ title, onMore }) {
   );
 }
 
-// 주소에서 층 정보 추출
 function getFloor(address) {
   if (!address) return "";
 
@@ -313,15 +337,24 @@ function getFloor(address) {
   return match ? match[0].replace(/\s/g, "") : "";
 }
 
-function Timeline({ isAdmin, submissions, places, loading, error }) {
-  const [tab, setTab] = useState(isAdmin ? "pending" : "approved");
+function Timeline({
+  isAdmin,
+  submissions,
+  places,
+  loading,
+  error,
+  tab,
+  setTab,
+}) {
   const [sort, setSort] = useState("latest");
 
   const list = useMemo(() => {
-    const filtered = submissions.filter((s) => s.status === tab);
+    const filtered =
+      tab === "all" ? submissions : submissions.filter((s) => s.status === tab);
 
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
+
       const dateB = new Date(b.created_at || b.createdAt || 0).getTime();
 
       return sort === "latest" ? dateB - dateA : dateA - dateB;
@@ -332,7 +365,7 @@ function Timeline({ isAdmin, submissions, places, loading, error }) {
     <section className="section">
       <SectionHeader
         title={isAdmin ? "관리자 승인" : "내 타임라인"}
-        onMore={() => {}}
+        onMore={() => setTab("all")}
       />
 
       <div className="filters">
@@ -373,6 +406,7 @@ function Timeline({ isAdmin, submissions, places, loading, error }) {
           <>
             {list.map((item) => {
               const place = places[item.place_id];
+
               const storeName =
                 place?.name || item.place_name || `장소 ${item.place_id}`;
 
@@ -385,11 +419,13 @@ function Timeline({ isAdmin, submissions, places, loading, error }) {
                       <span className="card__store">
                         {item.user_nickname || `사용자 ${item.user_id}`}
                       </span>
+
                       <span className="card__dong">{storeName}</span>
                     </>
                   ) : (
                     <>
                       <span className="card__store">{storeName}</span>
+
                       <span className="card__dong">{floor}</span>
                     </>
                   )}
@@ -402,7 +438,11 @@ function Timeline({ isAdmin, submissions, places, loading, error }) {
             })}
 
             {list.length === 0 && (
-              <li className="empty">아직 제보한 내역이 없어요.</li>
+              <li className="empty">
+                {tab === "all"
+                  ? "아직 제보한 내역이 없어요."
+                  : "해당 상태의 제보가 없어요."}
+              </li>
             )}
           </>
         )}
@@ -466,6 +506,8 @@ export default function MySubmissionsPage() {
 
   const [submissions, setSubmissions] = useState([]);
   const [places, setPlaces] = useState({});
+  const [tab, setTab] = useState("approved");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [userLoading, setUserLoading] = useState(true);
@@ -479,7 +521,6 @@ export default function MySubmissionsPage() {
       setUserError("");
 
       try {
-        // DB 사용자 정보 조회
         const userData = await getUser(DEMO_USER_ID);
 
         setUser({
@@ -488,7 +529,6 @@ export default function MySubmissionsPage() {
           isAdmin: false,
         });
 
-        // 실제 내 제보 조회
         const submissionResult = await getMySubmissions();
 
         const submissionList = Array.isArray(submissionResult)
@@ -498,17 +538,15 @@ export default function MySubmissionsPage() {
         const normalized = submissionList.map((item) => ({
           ...item,
           place_id: Number(item.place_id),
-          status: String(item.status || "").toLowerCase(),
+          status: normalizeStatus(item.status),
         }));
 
         setSubmissions(normalized);
 
-        // 실제 장소 이름 및 주소 조회
         const placesResponse = await fetch(`${API_BASE}/places`);
 
         if (placesResponse.ok) {
           const placesData = await placesResponse.json();
-
           const placeMap = {};
 
           placesData.forEach((place) => {
@@ -544,7 +582,11 @@ export default function MySubmissionsPage() {
             <h1 className="profile__name">{userError}</h1>
           </section>
         ) : (
-          <ProfileSection user={user} submissions={submissions} />
+          <ProfileSection
+            user={user}
+            submissions={submissions}
+            onSelectTab={setTab}
+          />
         )}
 
         <Timeline
@@ -553,6 +595,8 @@ export default function MySubmissionsPage() {
           places={places}
           loading={loading}
           error={error}
+          tab={tab}
+          setTab={setTab}
         />
 
         <Missions />
