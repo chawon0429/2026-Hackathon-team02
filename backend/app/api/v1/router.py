@@ -6,6 +6,7 @@ from app.api.v1.endpoints import (
     submissions,
     submission_fields,
     points,
+    users,
 )
 
 v1_router = APIRouter()
@@ -15,3 +16,4 @@ v1_router.include_router(submission_fields.router)
 v1_router.include_router(analysis.analysis_router)
 v1_router.include_router(admin.router)
 v1_router.include_router(points.router)
+v1_router.include_router(users.router)
