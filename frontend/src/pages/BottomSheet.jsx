@@ -315,6 +315,9 @@ import { CATEGORIES } from "../mocks/places";
 import { useNavigate, useLocation } from "react-router-dom";
 import like from "../assets/like.svg";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+
 function BottomSheet({ place }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -328,14 +331,12 @@ function BottomSheet({ place }) {
   };
 
   const [isOpen, setIsOpen] = useState(location.state?.openReviews === true);
-
   const [dragHeight, setDragHeight] = useState(null);
   const startRef = useRef(null);
   const contentTouchStartY = useRef(null);
 
   const [categoryKey, setCategoryKey] = useState("access");
   const [likedReviews, setLikedReviews] = useState([]);
-
   const [showAllReviews, setShowAllReviews] = useState(
     location.state?.openReviews === true,
   );
@@ -343,70 +344,50 @@ function BottomSheet({ place }) {
   // 실제 DB 리뷰 상태
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [reviewsError, setReviewsError] = useState(false);
+  const [reviewsError, setReviewsError] = useState("");
 
   const facts = place?.facts?.[categoryKey] || {};
 
   const reviewPhotos = [place?.thumb, ...(place?.photos || [])].filter(Boolean);
 
-  // 승인된 실제 DB 리뷰 조회
+  // 실제 승인된 DB 리뷰 조회
   useEffect(() => {
-    if (!place?.dbId) {
-      setReviews([]);
-      setReviewsError(false);
-      return;
-    }
+    if (!place?.id) return;
 
     const fetchReviews = async () => {
+      setReviewsLoading(true);
+      setReviewsError("");
+
       try {
-        setReviewsLoading(true);
-        setReviewsError(false);
-
-        const url = "/api/v1/admin/submissions?status=approved";
-
-        console.log("[리뷰 조회 요청]", url);
-        console.log("[선택 장소]", place.name, "DB ID:", place.dbId);
-
-        const response = await fetch(url);
-        const responseText = await response.text();
-
-        console.log("[리뷰 조회 응답]", response.status);
+        const response = await fetch(
+          `${API_BASE_URL}/admin/submissions?status=approved`,
+        );
 
         if (!response.ok) {
-          throw new Error(
-            `HTTP ${response.status}: ${responseText || "응답 내용 없음"}`,
-          );
+          throw new Error("리뷰를 불러오지 못했습니다.");
         }
 
-        const data = JSON.parse(responseText);
-
-        if (!Array.isArray(data)) {
-          throw new Error("리뷰 응답 데이터가 배열이 아닙니다.");
-        }
+        const data = await response.json();
 
         // 현재 장소의 승인된 리뷰만 필터링
-        const approvedReviews = data.filter(
-          (review) =>
-            String(review.place_id) === String(place.dbId) &&
-            review.status === "approved",
-        );
-
-        console.log("[전체 승인 리뷰]", data);
-        console.log("[해당 장소 승인 리뷰]", approvedReviews);
-
-        setReviews(
-          approvedReviews.map((review) => ({
-            reviewId: review.id,
-            nickname: `사용자 ${review.user_id}`,
-            date: review.created_at ? review.created_at.slice(0, 10) : "",
-            content: review.content,
+        const placeReviews = data
+          .filter(
+            (submission) =>
+              Number(submission.place_id) === Number(place.id) &&
+              submission.status === "approved",
+          )
+          .map((submission) => ({
+            reviewId: submission.id,
+            nickname: `사용자 ${submission.user_id}`,
+            date: "승인 완료",
+            content: submission.content || "작성된 리뷰 내용이 없습니다.",
             likes: 0,
-          })),
-        );
-      } catch (error) {
-        console.error("[리뷰 조회 오류]", error);
+          }));
 
-        setReviewsError(true);
+        setReviews(placeReviews);
+      } catch (error) {
+        console.error("리뷰 조회 실패:", error);
+        setReviewsError(error.message);
         setReviews([]);
       } finally {
         setReviewsLoading(false);
@@ -414,7 +395,7 @@ function BottomSheet({ place }) {
     };
 
     fetchReviews();
-  }, [place?.dbId, place?.name]);
+  }, [place?.id]);
 
   function toggleSheet() {
     setIsOpen(!isOpen);
@@ -422,7 +403,6 @@ function BottomSheet({ place }) {
 
   function handle(e) {
     e.currentTarget.setPointerCapture(e.pointerId);
-
     startRef.current = {
       y: e.clientY,
       height: e.currentTarget.parentElement.offsetHeight,
@@ -436,7 +416,6 @@ function BottomSheet({ place }) {
     const minHeight = window.innerHeight * 0.4;
     const maxHeight = window.innerHeight - 114;
     const newHeight = startRef.current.height + distance;
-
     const height = Math.max(minHeight, Math.min(maxHeight, newHeight));
 
     setDragHeight(height);
@@ -552,7 +531,6 @@ function BottomSheet({ place }) {
                 <div className="sheet-menu-info">
                   <div>
                     <h3>{menu.name}</h3>
-
                     <p className="sheet-menu-price">
                       {menu.price.toLocaleString()}원
                     </p>
@@ -645,9 +623,7 @@ function BottomSheet({ place }) {
               {reviewsLoading ? (
                 <p className="sheet-review-empty">리뷰를 불러오는 중입니다.</p>
               ) : reviewsError ? (
-                <p className="sheet-review-empty">
-                  리뷰를 불러오지 못했습니다.
-                </p>
+                <p className="sheet-review-empty">{reviewsError}</p>
               ) : reviews.length > 0 ? (
                 reviews
                   .slice(0, showAllReviews ? reviews.length : 2)
@@ -658,7 +634,6 @@ function BottomSheet({ place }) {
                       <div className="sheet-review-info">
                         <div className="sheet-review-user">
                           <strong>{review.nickname}</strong>
-
                           <span>{review.date}</span>
                         </div>
 

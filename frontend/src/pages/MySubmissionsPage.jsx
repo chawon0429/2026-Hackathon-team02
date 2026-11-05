@@ -1,5 +1,4 @@
-// // import { useMemo, useState } from "react";
-
+// import { useMemo, useState } from "react";
 // import BottomTabBar from "../components/BottomTabBar";
 // import "./MySubmissionsPage.css";
 
@@ -8,108 +7,24 @@
 
 // // 일반 사용자: 내가 한 제보
 // const MY_SUBMISSIONS = [
-//   {
-//     id: 1,
-//     store: "밥가게",
-//     floor: "B1층",
-//     status: "approved",
-//     createdAt: "2026-11-03",
-//   },
-//   {
-//     id: 2,
-//     store: "라면가게",
-//     floor: "B1층",
-//     status: "approved",
-//     createdAt: "2026-11-02",
-//   },
-//   {
-//     id: 3,
-//     store: "빵가게",
-//     floor: "B1층",
-//     status: "approved",
-//     createdAt: "2026-11-01",
-//   },
-//   {
-//     id: 4,
-//     store: "죽가게",
-//     floor: "B1층",
-//     status: "approved",
-//     createdAt: "2026-10-30",
-//   },
-//   {
-//     id: 5,
-//     store: "국수가게",
-//     floor: "1층",
-//     status: "pending",
-//     createdAt: "2026-11-03",
-//   },
-//   {
-//     id: 6,
-//     store: "분식가게",
-//     floor: "1층",
-//     status: "pending",
-//     createdAt: "2026-11-02",
-//   },
+//   { id: 1, store: "밥가게", floor: "B1층", status: "approved", createdAt: "2026-11-03" },
+//   { id: 2, store: "라면가게", floor: "B1층", status: "approved", createdAt: "2026-11-02" },
+//   { id: 3, store: "빵가게", floor: "B1층", status: "approved", createdAt: "2026-11-01" },
+//   { id: 4, store: "죽가게", floor: "B1층", status: "approved", createdAt: "2026-10-30" },
+//   { id: 5, store: "국수가게", floor: "1층", status: "pending", createdAt: "2026-11-03" },
+//   { id: 6, store: "분식가게", floor: "1층", status: "pending", createdAt: "2026-11-02" },
 // ];
 
 // // 관리자: 모든 사용자의 제보
 // const ALL_SUBMISSIONS = [
-//   {
-//     id: 1,
-//     user: "@사용자 1",
-//     store: "빵가게",
-//     status: "approved",
-//     createdAt: "2026-11-03",
-//   },
-//   {
-//     id: 2,
-//     user: "@사용자 2",
-//     store: "빵가게",
-//     status: "approved",
-//     createdAt: "2026-11-02",
-//   },
-//   {
-//     id: 3,
-//     user: "@사용자 3",
-//     store: "빵가게",
-//     status: "approved",
-//     createdAt: "2026-11-01",
-//   },
-//   {
-//     id: 4,
-//     user: "@사용자 4",
-//     store: "빵가게",
-//     status: "approved",
-//     createdAt: "2026-10-30",
-//   },
-//   {
-//     id: 5,
-//     user: "@사용자 1",
-//     store: "빵가게",
-//     status: "pending",
-//     createdAt: "2026-11-03",
-//   },
-//   {
-//     id: 6,
-//     user: "@사용자 2",
-//     store: "빵가게",
-//     status: "pending",
-//     createdAt: "2026-11-02",
-//   },
-//   {
-//     id: 7,
-//     user: "@사용자 3",
-//     store: "빵가게",
-//     status: "pending",
-//     createdAt: "2026-11-01",
-//   },
-//   {
-//     id: 8,
-//     user: "@사용자 4",
-//     store: "빵가게",
-//     status: "pending",
-//     createdAt: "2026-10-30",
-//   },
+//   { id: 1, user: "@사용자 1", store: "빵가게", status: "approved", createdAt: "2026-11-03" },
+//   { id: 2, user: "@사용자 2", store: "빵가게", status: "approved", createdAt: "2026-11-02" },
+//   { id: 3, user: "@사용자 3", store: "빵가게", status: "approved", createdAt: "2026-11-01" },
+//   { id: 4, user: "@사용자 4", store: "빵가게", status: "approved", createdAt: "2026-10-30" },
+//   { id: 5, user: "@사용자 1", store: "빵가게", status: "pending", createdAt: "2026-11-03" },
+//   { id: 6, user: "@사용자 2", store: "빵가게", status: "pending", createdAt: "2026-11-02" },
+//   { id: 7, user: "@사용자 3", store: "빵가게", status: "pending", createdAt: "2026-11-01" },
+//   { id: 8, user: "@사용자 4", store: "빵가게", status: "pending", createdAt: "2026-10-30" },
 // ];
 
 // const MOCK_MISSIONS = [
@@ -127,17 +42,8 @@
 
 // function Chevron() {
 //   return (
-//     <svg
-//       width="16"
-//       height="16"
-//       viewBox="0 0 24 24"
-//       fill="none"
-//       stroke="currentColor"
-//       strokeWidth="2.2"
-//       strokeLinecap="round"
-//       strokeLinejoin="round"
-//       aria-hidden="true"
-//     >
+//     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+//          strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 //       <path d="M9 5l7 7-7 7" />
 //     </svg>
 //   );
@@ -146,14 +52,8 @@
 // function ProfileSection({ user, submissions }) {
 //   const stats = [
 //     { label: "전체 제보", count: submissions.length },
-//     {
-//       label: "승인 완료",
-//       count: submissions.filter((s) => s.status === "approved").length,
-//     },
-//     {
-//       label: "승인 대기",
-//       count: submissions.filter((s) => s.status === "pending").length,
-//     },
+//     { label: "승인 완료", count: submissions.filter((s) => s.status === "approved").length },
+//     { label: "승인 대기", count: submissions.filter((s) => s.status === "pending").length },
 //   ];
 
 //   return (
@@ -162,7 +62,8 @@
 //         <div className="profile__avatar" aria-hidden="true" />
 //         <h1 className="profile__name">{user.nickname}</h1>
 //         {user.isAdmin && <span className="badge-admin">관리자</span>}
-//         <button type="button" className="btn-logout" onClick={() => {}}>
+//         <button type="button" className="btn-logout"
+//                 onClick={() => {}}>
 //           로그아웃
 //         </button>
 //       </div>
@@ -181,12 +82,7 @@
 //   return (
 //     <div className="section__head">
 //       <h2>{title}</h2>
-//       <button
-//         type="button"
-//         className="section__more"
-//         onClick={onMore}
-//         aria-label={`${title} 더보기`}
-//       >
+//       <button type="button" className="section__more" onClick={onMore} aria-label={`${title} 더보기`}>
 //         <Chevron />
 //       </button>
 //     </div>
@@ -203,38 +99,26 @@
 //     return [...filtered].sort((a, b) =>
 //       sort === "latest"
 //         ? b.createdAt.localeCompare(a.createdAt)
-//         : a.createdAt.localeCompare(b.createdAt),
+//         : a.createdAt.localeCompare(b.createdAt)
 //     );
 //   }, [submissions, tab, sort]);
 
 //   return (
 //     <section className="section">
-//       <SectionHeader
-//         title={isAdmin ? "관리자 승인" : "내 타임라인"}
-//         onMore={() => {}}
-//       />
+//       <SectionHeader title={isAdmin ? "관리자 승인" : "내 타임라인"}
+//                      onMore={() => {}} />
 
 //       <div className="filters">
-//         <select
-//           className="sort"
-//           value={sort}
-//           onChange={(e) => setSort(e.target.value)}
-//           aria-label="정렬"
-//         >
+//         <select className="sort" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
 //           <option value="latest">최신순</option>
 //           <option value="oldest">오래된순</option>
 //         </select>
 //         <span className="filters__divider" />
 //         <div role="tablist" className="tabs">
 //           {TABS.map((t) => (
-//             <button
-//               key={t.key}
-//               type="button"
-//               role="tab"
-//               aria-selected={tab === t.key}
-//               className={`tab${tab === t.key ? " is-active" : ""}`}
-//               onClick={() => setTab(t.key)}
-//             >
+//             <button key={t.key} type="button" role="tab" aria-selected={tab === t.key}
+//                     className={`tab${tab === t.key ? " is-active" : ""}`}
+//                     onClick={() => setTab(t.key)}>
 //               {t.label}
 //             </button>
 //           ))}
@@ -255,14 +139,10 @@
 //                 <span className="card__dong">{item.floor}</span>
 //               </>
 //             )}
-//             <span className={`status status--${item.status}`}>
-//               {STATUS_LABEL[item.status]}
-//             </span>
+//             <span className={`status status--${item.status}`}>{STATUS_LABEL[item.status]}</span>
 //           </li>
 //         ))}
-//         {list.length === 0 && (
-//           <li className="empty">아직 제보한 내역이 없어요.</li>
-//         )}
+//         {list.length === 0 && <li className="empty">아직 제보한 내역이 없어요.</li>}
 //       </ul>
 //     </section>
 //   );
@@ -274,32 +154,16 @@
 //       <SectionHeader title="포인트 미션" onMore={() => {}} />
 //       <ul className="cards">
 //         {MOCK_MISSIONS.map((m, i) => (
-//           <li
-//             key={m.id}
-//             className={`card card--mission${m.done ? " is-done" : ""}`}
-//           >
+//           <li key={m.id} className={`card card--mission${m.done ? " is-done" : ""}`}>
 //             <div className="mission__row">
-//               <span className="mission__title">
-//                 {i + 1}. {m.title}
-//               </span>
+//               <span className="mission__title">{i + 1}. {m.title}</span>
 //               <span className="mission__point">{m.point}P</span>
 //             </div>
-//             <span
-//               className={`check${m.done ? " is-done" : ""}`}
-//               role="img"
-//               aria-label={m.done ? "완료" : "미완료"}
-//             >
+//             <span className={`check${m.done ? " is-done" : ""}`} role="img"
+//                   aria-label={m.done ? "완료" : "미완료"}>
 //               {m.done && (
-//                 <svg
-//                   width="14"
-//                   height="14"
-//                   viewBox="0 0 24 24"
-//                   fill="none"
-//                   stroke="#fff"
-//                   strokeWidth="3.2"
-//                   strokeLinecap="round"
-//                   strokeLinejoin="round"
-//                 >
+//                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff"
+//                      strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
 //                   <path d="M5 12.5l4.5 4.5L19 7.5" />
 //                 </svg>
 //               )}
@@ -332,24 +196,14 @@
 import { useEffect, useMemo, useState } from "react";
 import BottomTabBar from "../components/BottomTabBar";
 import { getMySubmissions } from "../api/submission";
+import { getUser } from "../api/user";
 import "./MySubmissionsPage.css";
 
-const PLACE_INFO = {
-  1: { name: "string", floor: "B1층" },
-  2: { name: "하루카페", floor: "B1층" },
-  3: { name: "모두의 카페", floor: "B1층" },
-  4: { name: "행복한 식당", floor: "B1층" },
-  5: { name: "그린 베이커리", floor: "B1층" },
-  6: { name: "함께하는 도서관", floor: "B1층" },
-  7: { name: "편안한 식당", floor: "B1층" },
-};
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
-const MOCK_USER = {
-  nickname: "닉네임",
-  isAdmin: false,
-};
-
-const ALL_SUBMISSIONS = [];
+// 로그인 기능이 없으므로 현재 테스트 사용자 ID 유지
+const DEMO_USER_ID = 1;
 
 const MOCK_MISSIONS = [
   { id: 1, title: "리뷰 작성하기", point: 100, done: true },
@@ -359,10 +213,8 @@ const MOCK_MISSIONS = [
 ];
 
 const TABS = [
-  { key: "all", label: "전체 제보" },
   { key: "approved", label: "승인완료" },
   { key: "pending", label: "승인대기" },
-  { key: "rejected", label: "반려" },
 ];
 
 const STATUS_LABEL = {
@@ -389,23 +241,16 @@ function Chevron() {
   );
 }
 
-function ProfileSection({ user, submissions, tab, setTab }) {
+function ProfileSection({ user, submissions }) {
   const stats = [
-    { key: "all", label: "전체 제보", count: submissions.length },
+    { label: "전체 제보", count: submissions.length },
     {
-      key: "approved",
       label: "승인 완료",
       count: submissions.filter((s) => s.status === "approved").length,
     },
     {
-      key: "pending",
       label: "승인 대기",
       count: submissions.filter((s) => s.status === "pending").length,
-    },
-    {
-      key: "rejected",
-      label: "반려",
-      count: submissions.filter((s) => s.status === "rejected").length,
     },
   ];
 
@@ -413,23 +258,25 @@ function ProfileSection({ user, submissions, tab, setTab }) {
     <section className="profile">
       <div className="profile__row">
         <div className="profile__avatar" aria-hidden="true" />
+
         <h1 className="profile__name">{user.nickname}</h1>
 
         {user.isAdmin && <span className="badge-admin">관리자</span>}
 
-        <button type="button" className="btn-logout" onClick={() => {}}>
+        <button
+          type="button"
+          className="btn-logout"
+          onClick={() => {
+            // 로그인 기능이 없으므로 로그아웃 처리 없음
+          }}
+        >
           로그아웃
         </button>
       </div>
 
       <div className="stats">
         {stats.map((s) => (
-          <button
-            type="button"
-            key={s.key}
-            className={`stat${tab === s.key ? " is-active" : ""}`}
-            onClick={() => setTab(s.key)}
-          >
+          <button type="button" key={s.label} className="stat">
             <b>{s.label}</b>
             <span>{s.count}건</span>
             <Chevron />
@@ -457,23 +304,35 @@ function SectionHeader({ title, onMore }) {
   );
 }
 
-function Timeline({ isAdmin, submissions, tab, setTab }) {
+// 주소에서 층 정보 추출
+function getFloor(address) {
+  if (!address) return "";
+
+  const match = String(address).match(/(?:지하\s*\d+층|B\d+층|\d+층)/);
+
+  return match ? match[0].replace(/\s/g, "") : "";
+}
+
+function Timeline({ isAdmin, submissions, places, loading, error }) {
+  const [tab, setTab] = useState(isAdmin ? "pending" : "approved");
   const [sort, setSort] = useState("latest");
 
   const list = useMemo(() => {
-    const filtered =
-      tab === "all" ? submissions : submissions.filter((s) => s.status === tab);
+    const filtered = submissions.filter((s) => s.status === tab);
 
-    return [...filtered].sort((a, b) =>
-      sort === "latest" ? b.id - a.id : a.id - b.id,
-    );
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
+      const dateB = new Date(b.created_at || b.createdAt || 0).getTime();
+
+      return sort === "latest" ? dateB - dateA : dateA - dateB;
+    });
   }, [submissions, tab, sort]);
 
   return (
     <section className="section">
       <SectionHeader
         title={isAdmin ? "관리자 승인" : "내 타임라인"}
-        onMore={() => setTab("all")}
+        onMore={() => {}}
       />
 
       <div className="filters">
@@ -506,47 +365,46 @@ function Timeline({ isAdmin, submissions, tab, setTab }) {
       </div>
 
       <ul className="cards">
-        {list.map((item) => {
-          const place = PLACE_INFO[item.place_id];
+        {loading ? (
+          <li className="empty">제보를 불러오는 중입니다.</li>
+        ) : error ? (
+          <li className="empty">{error}</li>
+        ) : (
+          <>
+            {list.map((item) => {
+              const place = places[item.place_id];
+              const storeName =
+                place?.name || item.place_name || `장소 ${item.place_id}`;
 
-          const storeName = isAdmin
-            ? item.user
-            : place?.name || `장소 ${item.place_id}`;
+              const floor = getFloor(place?.address) || item.floor || "";
 
-          const floorName = isAdmin
-            ? item.floor || "B1층"
-            : place?.floor || "층 정보 없음";
+              return (
+                <li key={item.id} className="card">
+                  {isAdmin ? (
+                    <>
+                      <span className="card__store">
+                        {item.user_nickname || `사용자 ${item.user_id}`}
+                      </span>
+                      <span className="card__dong">{storeName}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="card__store">{storeName}</span>
+                      <span className="card__dong">{floor}</span>
+                    </>
+                  )}
 
-          return (
-            <li key={item.id} className="card card--submission">
-              <div className="card__place-info">
-                <span className="card__store">{storeName}</span>
-                <span className="card__dong">{floorName}</span>
-              </div>
+                  <span className={`status status--${item.status}`}>
+                    {STATUS_LABEL[item.status] || item.status}
+                  </span>
+                </li>
+              );
+            })}
 
-              <span className={`status status--${item.status}`}>
-                {STATUS_LABEL[item.status] || item.status}
-              </span>
-
-              {!isAdmin && item.content && (
-                <p className="card__content">{item.content}</p>
-              )}
-
-              {!isAdmin && item.status === "rejected" && item.reject_reason && (
-                <p className="card__content card__reject-reason">
-                  반려 사유: {item.reject_reason}
-                </p>
-              )}
-            </li>
-          );
-        })}
-
-        {list.length === 0 && (
-          <li className="empty">
-            {tab === "all"
-              ? "아직 제보한 내역이 없어요."
-              : `${STATUS_LABEL[tab] || tab} 제보가 없어요.`}
-          </li>
+            {list.length === 0 && (
+              <li className="empty">아직 제보한 내역이 없어요.</li>
+            )}
+          </>
         )}
       </ul>
     </section>
@@ -600,80 +458,104 @@ function Missions() {
 }
 
 export default function MySubmissionsPage() {
-  const user = MOCK_USER;
+  const [user, setUser] = useState({
+    id: DEMO_USER_ID,
+    nickname: "",
+    isAdmin: false,
+  });
 
   const [submissions, setSubmissions] = useState([]);
+  const [places, setPlaces] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState("all");
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
+    const fetchData = async () => {
+      setLoading(true);
+      setError("");
+      setUserLoading(true);
+      setUserError("");
 
-    async function loadSubmissions() {
       try {
-        setLoading(true);
-        setError("");
+        // DB 사용자 정보 조회
+        const userData = await getUser(DEMO_USER_ID);
 
-        const data = await getMySubmissions();
+        setUser({
+          id: userData.id,
+          nickname: userData.nickname,
+          isAdmin: false,
+        });
 
-        if (!cancelled) {
-          const normalized = data.map((item) => ({
-            ...item,
-            store: PLACE_INFO[item.place_id]?.name || `장소 ${item.place_id}`,
-            floor: PLACE_INFO[item.place_id]?.floor || "층 정보 없음",
-          }));
+        // 실제 내 제보 조회
+        const submissionResult = await getMySubmissions();
 
-          setSubmissions(normalized);
+        const submissionList = Array.isArray(submissionResult)
+          ? submissionResult
+          : submissionResult?.items || [];
+
+        const normalized = submissionList.map((item) => ({
+          ...item,
+          place_id: Number(item.place_id),
+          status: String(item.status || "").toLowerCase(),
+        }));
+
+        setSubmissions(normalized);
+
+        // 실제 장소 이름 및 주소 조회
+        const placesResponse = await fetch(`${API_BASE}/places`);
+
+        if (placesResponse.ok) {
+          const placesData = await placesResponse.json();
+
+          const placeMap = {};
+
+          placesData.forEach((place) => {
+            placeMap[place.id] = place;
+          });
+
+          setPlaces(placeMap);
         }
       } catch (err) {
-        if (!cancelled) {
-          setError(err.message || "제보 목록 조회 실패");
-        }
+        console.error("내 페이지 데이터 조회 실패:", err);
+        setError(err.message || "데이터를 불러오지 못했습니다.");
+        setUserError(err.message || "사용자 정보를 불러오지 못했습니다.");
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
+        setUserLoading(false);
       }
-    }
-
-    loadSubmissions();
-
-    return () => {
-      cancelled = true;
     };
-  }, []);
 
-  const displayedSubmissions = user.isAdmin ? ALL_SUBMISSIONS : submissions;
+    fetchData();
+  }, []);
 
   return (
     <div className="mypage">
       <div className="mypage__topbar" />
 
       <main className="mypage__body">
-        {loading && !user.isAdmin ? (
-          <p className="empty">제보 목록을 불러오는 중입니다.</p>
-        ) : error && !user.isAdmin ? (
-          <p className="empty">{error}</p>
+        {userLoading ? (
+          <section className="profile">
+            <h1 className="profile__name">사용자 정보를 불러오는 중입니다.</h1>
+          </section>
+        ) : userError ? (
+          <section className="profile">
+            <h1 className="profile__name">{userError}</h1>
+          </section>
         ) : (
-          <>
-            <ProfileSection
-              user={user}
-              submissions={displayedSubmissions}
-              tab={tab}
-              setTab={setTab}
-            />
-
-            <Timeline
-              isAdmin={user.isAdmin}
-              submissions={displayedSubmissions}
-              tab={tab}
-              setTab={setTab}
-            />
-
-            <Missions />
-          </>
+          <ProfileSection user={user} submissions={submissions} />
         )}
+
+        <Timeline
+          isAdmin={user.isAdmin}
+          submissions={submissions}
+          places={places}
+          loading={loading}
+          error={error}
+        />
+
+        <Missions />
       </main>
 
       <BottomTabBar />
