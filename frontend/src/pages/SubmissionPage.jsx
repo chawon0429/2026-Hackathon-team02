@@ -3,7 +3,8 @@ import './SubmissionPage.css'
 import BottomTabBar from "../components/BottomTabBar";
 import v from "../assets/v.svg";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { MOCK_PLACES } from "../mocks/places";
+import { getPlace } from "../api/places";
+import { createSubmission } from "../api/submissions";
 
 const categories = [
     {title: '접근성', options: ['계단', '경사로', '자동문', '엘리베이터', '휠체어 가능']},
@@ -31,9 +32,38 @@ function SubmissionPage() {
     const placeId = searchParams.get("placeId");
     const navigate = useNavigate();
 
-    const place = MOCK_PLACES.find(
-        (p) => String(p.id) === placeId
-    );
+
+    const [place, setPlace] = useState(null);
+    const [placeError, setPlaceError] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState("");
+
+    useEffect(() => {
+        let cancelled = false;
+
+        if (!placeId) {
+            setPlaceError("장소 ID가 없습니다.");
+            return;
+        }
+
+        getPlace(placeId)
+            .then((data) => {
+                if (!cancelled) {
+                    setPlace(data);
+                    setPlaceError("");
+                }
+            })
+            .catch((err) => {
+                if (!cancelled) {
+                    setPlaceError(err.message);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [placeId]);
+
     const placePhoto = place?.thumb || place?.photos?.[0];
 
     function selectAnswer(key, option) {
@@ -53,28 +83,69 @@ function SubmissionPage() {
         }
     }
 
-    function handleComplete() {
-        const savedReviews = JSON.parse(
-            localStorage.getItem("submittedReviews") || "[]"
-        );
-        
 
-        const newReview = {
-            id: Date.now(),
-            placeId: Number(placeId),
-            selectedCategories: selectedCategories,
-            answers: answers,
-            content: review.trim(),
-            status: "pending"
+    async function handleComplete() {
+        if (saving) {
+            return;
+        }
+
+        if (!place || !placeId) {
+            setSaveError("장소 정보를 확인할 수 없습니다.");
+            return;
+        }
+
+        // 임시 테스트용 ID: 실제 DB에 있는 사용자 ID로 변경해야 함
+        const userId = 1;
+
+        const accessibility = selectedCategories.filter(
+            (item) => categories[0].options.includes(item)
+        );
+
+        const facilities = selectedCategories.filter(
+            (item) => categories[1].options.includes(item)
+        );
+
+        const benefits = selectedCategories.filter(
+            (item) => categories[2].options.includes(item)
+        );
+
+        // 백엔드에 결제 혜택 전용 필드가 없어 임시로 본문에 보관
+        const content = [
+            review.trim(),
+            benefits.length > 0
+                ? "결제 혜택: " + benefits.join(", ")
+                : ""
+        ].filter(Boolean).join("\n");
+
+        const submissionData = {
+            place_id: Number(placeId),
+            accessibility: accessibility,
+            facilities: facilities,
+            usage_method: answers.method || null,
+            waiting_time: answers.wait || null,
+            min_order: answers.minimum || null,
+            content: content
         };
 
-        localStorage.setItem(
-            "submittedReviews",
-            JSON.stringify([...savedReviews, newReview])
-        );
+        setSaving(true);
+        setSaveError("");
 
-        setCompleted(true);
+        try {
+            const result = await createSubmission(userId, submissionData);
+
+            console.log("DB 저장 성공:", result);
+
+            setCompleted(true);
+
+        } catch (err) {
+            console.error("DB 저장 실패:", err);
+            setSaveError(err.message);
+
+        } finally {
+            setSaving(false);
+        }
     }
+
 
     if (completed) {
     return (
@@ -130,9 +201,7 @@ function SubmissionPage() {
                             </h2>
 
                             <span className="complete-place-category">
-                                {Array.isArray(place.tags)
-                                    ? place.tags.join(", ")
-                                    : place.tags}
+                                {place.category || "카테고리 정보 없음"}
                             </span>
                         </div>
                     </div>
@@ -227,12 +296,16 @@ function SubmissionPage() {
                 </div>
 
                 <div className="submission-complete">
+                    {placeError && <p role="alert">{placeError}</p>}
+                    {saveError && <p role="alert">{saveError}</p>}
+
                     <button
                         type="button"
                         className="submission-complete-button"
                         onClick={handleComplete}
+                        disabled={saving || !place}
                     >
-                        작성 완료
+                        {saving ? "저장 중..." : "작성 완료"}
                     </button>
                 </div>
 
