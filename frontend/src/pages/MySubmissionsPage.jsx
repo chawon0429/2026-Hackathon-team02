@@ -329,17 +329,11 @@
 //   );
 // }
 
-
-
-
-
-
 import { useEffect, useMemo, useState } from "react";
 import BottomTabBar from "../components/BottomTabBar";
 import { getMySubmissions } from "../api/submission";
 import "./MySubmissionsPage.css";
 
-// DB 장소 ID -> 장소 정보
 const PLACE_INFO = {
   1: { name: "string", floor: "B1층" },
   2: { name: "하루카페", floor: "B1층" },
@@ -355,73 +349,7 @@ const MOCK_USER = {
   isAdmin: false,
 };
 
-// 관리자 더미 데이터
-const ALL_SUBMISSIONS = [
-  {
-    id: 1,
-    user: "@사용자 1",
-    store: "빵가게",
-    floor: "B1층",
-    status: "approved",
-    createdAt: "2026-11-03",
-  },
-  {
-    id: 2,
-    user: "@사용자 2",
-    store: "빵가게",
-    floor: "B1층",
-    status: "approved",
-    createdAt: "2026-11-02",
-  },
-  {
-    id: 3,
-    user: "@사용자 3",
-    store: "빵가게",
-    floor: "B1층",
-    status: "approved",
-    createdAt: "2026-11-01",
-  },
-  {
-    id: 4,
-    user: "@사용자 4",
-    store: "빵가게",
-    floor: "B1층",
-    status: "approved",
-    createdAt: "2026-10-30",
-  },
-  {
-    id: 5,
-    user: "@사용자 1",
-    store: "빵가게",
-    floor: "B1층",
-    status: "pending",
-    createdAt: "2026-11-03",
-  },
-  {
-    id: 6,
-    user: "@사용자 2",
-    store: "빵가게",
-    floor: "B1층",
-    status: "pending",
-    createdAt: "2026-11-02",
-  },
-  {
-    id: 7,
-    user: "@사용자 3",
-    store: "빵가게",
-    floor: "B1층",
-    status: "pending",
-    createdAt: "2026-11-01",
-  },
-  {
-    id: 8,
-    user: "@사용자 4",
-    store: "빵가게",
-    floor: "B1층",
-    status: "pending",
-    createdAt: "2026-10-30",
-  },
-];
+const ALL_SUBMISSIONS = [];
 
 const MOCK_MISSIONS = [
   { id: 1, title: "리뷰 작성하기", point: 100, done: true },
@@ -431,6 +359,7 @@ const MOCK_MISSIONS = [
 ];
 
 const TABS = [
+  { key: "all", label: "전체 제보" },
   { key: "approved", label: "승인완료" },
   { key: "pending", label: "승인대기" },
   { key: "rejected", label: "반려" },
@@ -460,16 +389,23 @@ function Chevron() {
   );
 }
 
-function ProfileSection({ user, submissions }) {
+function ProfileSection({ user, submissions, tab, setTab }) {
   const stats = [
-    { label: "전체 제보", count: submissions.length },
+    { key: "all", label: "전체 제보", count: submissions.length },
     {
+      key: "approved",
       label: "승인 완료",
       count: submissions.filter((s) => s.status === "approved").length,
     },
     {
+      key: "pending",
       label: "승인 대기",
       count: submissions.filter((s) => s.status === "pending").length,
+    },
+    {
+      key: "rejected",
+      label: "반려",
+      count: submissions.filter((s) => s.status === "rejected").length,
     },
   ];
 
@@ -488,7 +424,12 @@ function ProfileSection({ user, submissions }) {
 
       <div className="stats">
         {stats.map((s) => (
-          <button type="button" key={s.label} className="stat">
+          <button
+            type="button"
+            key={s.key}
+            className={`stat${tab === s.key ? " is-active" : ""}`}
+            onClick={() => setTab(s.key)}
+          >
             <b>{s.label}</b>
             <span>{s.count}건</span>
             <Chevron />
@@ -516,12 +457,12 @@ function SectionHeader({ title, onMore }) {
   );
 }
 
-function Timeline({ isAdmin, submissions }) {
-  const [tab, setTab] = useState(isAdmin ? "pending" : "approved");
+function Timeline({ isAdmin, submissions, tab, setTab }) {
   const [sort, setSort] = useState("latest");
 
   const list = useMemo(() => {
-    const filtered = submissions.filter((s) => s.status === tab);
+    const filtered =
+      tab === "all" ? submissions : submissions.filter((s) => s.status === tab);
 
     return [...filtered].sort((a, b) =>
       sort === "latest" ? b.id - a.id : a.id - b.id,
@@ -532,7 +473,7 @@ function Timeline({ isAdmin, submissions }) {
     <section className="section">
       <SectionHeader
         title={isAdmin ? "관리자 승인" : "내 타임라인"}
-        onMore={() => {}}
+        onMore={() => setTab("all")}
       />
 
       <div className="filters">
@@ -584,7 +525,7 @@ function Timeline({ isAdmin, submissions }) {
               </div>
 
               <span className={`status status--${item.status}`}>
-                {STATUS_LABEL[item.status]}
+                {STATUS_LABEL[item.status] || item.status}
               </span>
 
               {!isAdmin && item.content && (
@@ -601,7 +542,11 @@ function Timeline({ isAdmin, submissions }) {
         })}
 
         {list.length === 0 && (
-          <li className="empty">아직 제보한 내역이 없어요.</li>
+          <li className="empty">
+            {tab === "all"
+              ? "아직 제보한 내역이 없어요."
+              : `${STATUS_LABEL[tab] || tab} 제보가 없어요.`}
+          </li>
         )}
       </ul>
     </section>
@@ -660,6 +605,7 @@ export default function MySubmissionsPage() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [tab, setTab] = useState("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -711,11 +657,18 @@ export default function MySubmissionsPage() {
           <p className="empty">{error}</p>
         ) : (
           <>
-            <ProfileSection user={user} submissions={displayedSubmissions} />
+            <ProfileSection
+              user={user}
+              submissions={displayedSubmissions}
+              tab={tab}
+              setTab={setTab}
+            />
 
             <Timeline
               isAdmin={user.isAdmin}
               submissions={displayedSubmissions}
+              tab={tab}
+              setTab={setTab}
             />
 
             <Missions />
