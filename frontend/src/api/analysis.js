@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export async function summarizeReviews(reviews) {
   const response = await fetch(
@@ -9,7 +10,7 @@ export async function summarizeReviews(reviews) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ reviews }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -17,4 +18,9 @@ export async function summarizeReviews(reviews) {
   }
 
   return response.json();
+}
+
+// 현재 백엔드에 장소 요약 API가 확인되지 않아 임시 처리
+export async function summarizePlace(placeName) {
+  throw new Error("AI 장소 검색 API가 아직 연결되지 않았습니다.");
 }
