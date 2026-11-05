@@ -318,7 +318,7 @@ import like from "../assets/like.svg";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
-function BottomSheet({ place }) {
+function BottomSheet({ place, openReviews = false }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -330,18 +330,19 @@ function BottomSheet({ place }) {
     order: orderIcon,
   };
 
-  const [isOpen, setIsOpen] = useState(location.state?.openReviews === true);
+  const shouldOpenReviews = openReviews || location.state?.openReviews === true;
+
+  const [isOpen, setIsOpen] = useState(shouldOpenReviews);
   const [dragHeight, setDragHeight] = useState(null);
+
   const startRef = useRef(null);
   const contentTouchStartY = useRef(null);
+  const reviewListRef = useRef(null);
 
   const [categoryKey, setCategoryKey] = useState("access");
   const [likedReviews, setLikedReviews] = useState([]);
-  const [showAllReviews, setShowAllReviews] = useState(
-    location.state?.openReviews === true,
-  );
+  const [showAllReviews, setShowAllReviews] = useState(shouldOpenReviews);
 
-  // 실제 DB 리뷰 상태
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState("");
@@ -350,7 +351,24 @@ function BottomSheet({ place }) {
 
   const reviewPhotos = [place?.thumb, ...(place?.photos || [])].filter(Boolean);
 
-  // 실제 승인된 DB 리뷰 조회
+  // 리뷰 보러가기 클릭 시 BottomSheet 열고 리뷰 목록으로 이동
+  useEffect(() => {
+    if (!shouldOpenReviews || !place?.id) return;
+
+    setIsOpen(true);
+    setShowAllReviews(true);
+
+    const timer = setTimeout(() => {
+      reviewListRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [shouldOpenReviews, place?.id]);
+
+  // 실제 DB 승인 리뷰 조회
   useEffect(() => {
     if (!place?.id) return;
 
@@ -369,8 +387,11 @@ function BottomSheet({ place }) {
 
         const data = await response.json();
 
-        // 현재 장소의 승인된 리뷰만 필터링
-        const placeReviews = data
+        const submissions = Array.isArray(data)
+          ? data
+          : data.items || data.submissions || [];
+
+        const placeReviews = submissions
           .filter(
             (submission) =>
               Number(submission.place_id) === Number(place.id) &&
@@ -398,11 +419,12 @@ function BottomSheet({ place }) {
   }, [place?.id]);
 
   function toggleSheet() {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
   }
 
   function handle(e) {
     e.currentTarget.setPointerCapture(e.pointerId);
+
     startRef.current = {
       y: e.clientY,
       height: e.currentTarget.parentElement.offsetHeight,
@@ -462,20 +484,15 @@ function BottomSheet({ place }) {
     }
   }
 
-  let sheetClass = "bottom-sheet";
+  const sheetClass = isOpen ? "bottom-sheet open" : "bottom-sheet";
 
-  if (isOpen === true) {
-    sheetClass = "bottom-sheet open";
-  }
-
-  let sheetStyle = {};
-
-  if (dragHeight !== null) {
-    sheetStyle = {
-      height: dragHeight + "px",
-      transition: "none",
-    };
-  }
+  const sheetStyle =
+    dragHeight !== null
+      ? {
+          height: dragHeight + "px",
+          transition: "none",
+        }
+      : {};
 
   function toggleLike(reviewId) {
     if (likedReviews.includes(reviewId)) {
@@ -602,7 +619,8 @@ function BottomSheet({ place }) {
 
             <div className="sheet-divider"></div>
 
-            <div className="sheet-review-list">
+            {/* 리뷰 목록: 자동 스크롤 대상 */}
+            <div className="sheet-review-list" ref={reviewListRef}>
               <div className="sheet-review-list-title">
                 <h2>
                   리뷰 <span>{reviews.length}</span>
@@ -613,7 +631,7 @@ function BottomSheet({ place }) {
                   className={`sheet-review-arrow${
                     !showAllReviews ? " is-right" : ""
                   }`}
-                  onClick={() => setShowAllReviews(!showAllReviews)}
+                  onClick={() => setShowAllReviews((prev) => !prev)}
                   aria-expanded={showAllReviews}
                 >
                   {showAllReviews ? "⌄" : "›"}

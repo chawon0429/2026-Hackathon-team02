@@ -84,9 +84,13 @@
 
 
 
+
+
+
+from collections import defaultdict
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 from app.db.session import get_db
 from app.models.place import Place
@@ -112,31 +116,65 @@ def create_place(
     return place
 
 
-# 장소 목록 조회 (승인된 리뷰 개수 포함)
+# 장소 목록 조회
+# 승인된 리뷰 개수 + 접근성 + 편의시설 포함
 @router.get("/places", response_model=list[PlaceResponse])
 def get_places(db: Session = Depends(get_db)):
-    results = (
-        db.query(
-            Place,
-            func.count(Submission.id).label("review_count"),
-        )
-        .outerjoin(
-            Submission,
-            (Submission.place_id == Place.id)
-            & (Submission.status == "approved"),
-        )
-        .group_by(Place.id)
+
+    # 모든 장소 조회
+    places = (
+        db.query(Place)
         .order_by(Place.id.desc())
         .all()
     )
 
-    return [
-        {
-            **PlaceResponse.model_validate(place).model_dump(),
-            "review_count": review_count,
-        }
-        for place, review_count in results
-    ]
+    # 승인된 제보만 조회
+    approved_submissions = (
+        db.query(Submission)
+        .filter(Submission.status == "approved")
+        .all()
+    )
+
+    # 장소별 데이터 저장
+    accessibility_map = defaultdict(set)
+    facilities_map = defaultdict(set)
+    review_count_map = defaultdict(int)
+
+    for submission in approved_submissions:
+        place_id = submission.place_id
+
+        # 승인 리뷰 개수
+        review_count_map[place_id] += 1
+
+        # 접근성 정보 분류
+        for item in submission.accessibility or []:
+            if item:
+                accessibility_map[place_id].add(item)
+
+        # 편의시설 정보 분류
+        for item in submission.facilities or []:
+            if item:
+                facilities_map[place_id].add(item)
+
+    # 장소별 응답 생성
+    result = []
+
+    for place in places:
+        place_data = PlaceResponse.model_validate(place).model_dump()
+
+        place_data["review_count"] = review_count_map[place.id]
+
+        # 중복 제거 및 정렬
+        place_data["accessibility"] = sorted(
+            accessibility_map[place.id]
+        )
+        place_data["facilities"] = sorted(
+            facilities_map[place.id]
+        )
+
+        result.append(place_data)
+
+    return result
 
 
 # 장소 상세 조회
@@ -156,7 +194,7 @@ def get_place(
     return place
 
 
-# 장소별 접근성 정보 조회
+# 장소별 접근성 정보 조회 (기존 유지)
 @router.get("/places/{place_id}/facts")
 def get_place_facts(
     place_id: int,

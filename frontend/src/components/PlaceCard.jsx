@@ -98,7 +98,22 @@ function Fact({ label, value }) {
 
   return (
     <li className="fact fact--unknown">
-      <span aria-hidden="true">?</span>
+      <svg
+        className="fact__unknown-icon"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="9" strokeDasharray="2 2" />
+        <path d="M9.8 9a2.3 2.3 0 1 1 3.8 1.7c-1.1.8-1.6 1.2-1.6 2.8" />
+        <circle cx="12" cy="16.5" r=".6" fill="currentColor" />
+      </svg>
       <span>{label} 정보 없음</span>
     </li>
   );
@@ -111,7 +126,6 @@ export default function PlaceCard({ place, facts, onClick }) {
         <div className="place__top">
           <div>
             <h3 className="place__name">{place.name}</h3>
-
             <p className="place__meta">
               {place.tags || place.category || "분류 없음"}
               {" · "}

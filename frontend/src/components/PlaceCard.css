@@ -168,25 +168,63 @@
 }
 
 .fact--yes {
-  color: #0046b8;
-  font-weight: 600;
+  color: #2563eb;
 }
 
 .fact--no {
-  color: #555;
+  color: #9ca3af;
 }
 
 .fact--unknown {
-  color: #999;
+  color: #a16207;
 }
 
-.fact--unknown span:first-child {
-  width: 16px;
-  height: 16px;
-  border: 1px dashed currentColor;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  flex: none;
+.fact__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+/* 접근성 및 편의시설 */
+.place__info-group {
+  margin-top: 12px;
+}
+
+.place__info-title {
+  margin: 0 0 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.place__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.place__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #eaf5ee;
+  color: #287345;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.place__badge--facility {
+  background: #f0f2f8;
+  color: #4d5c82;
+}
+
+.fact--unknown {
+  color: #a16207;
+}
+
+.fact__unknown-icon {
+  flex-shrink: 0;
 }

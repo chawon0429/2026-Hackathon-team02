@@ -373,8 +373,10 @@ import "./SubmissionPage.css";
 import BottomTabBar from "../components/BottomTabBar";
 import v from "../assets/v.svg";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { MOCK_PLACES } from "../mocks/places";
 import { createSubmission } from "../api/submission";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
 // 제보 카테고리
 const categories = [
@@ -428,14 +430,61 @@ function SubmissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  // DB 장소 상태
+  const [place, setPlace] = useState(null);
+  const [placeLoading, setPlaceLoading] = useState(true);
+  const [placeError, setPlaceError] = useState("");
+
   // URL 파라미터
   const [searchParams] = useSearchParams();
   const placeId = searchParams.get("placeId");
 
   const navigate = useNavigate();
 
-  // 프론트엔드 장소 ID로 장소 찾기
-  const place = MOCK_PLACES.find((p) => String(p.id) === String(placeId));
+  // 실제 DB에서 장소 조회
+  useEffect(() => {
+    const fetchPlace = async () => {
+      if (!placeId) {
+        setPlaceError("장소 ID가 없습니다.");
+        setPlaceLoading(false);
+        return;
+      }
+
+      try {
+        setPlaceLoading(true);
+        setPlaceError("");
+
+        const response = await fetch(`${API_BASE_URL}/places/${placeId}`);
+
+        if (!response.ok) {
+          throw new Error("장소 정보를 불러오지 못했습니다.");
+        }
+
+        const data = await response.json();
+
+        // DB 장소 데이터를 기존 화면에서 사용하는 형태로 변환
+        const mappedPlace = {
+          ...data,
+          id: data.id,
+          dbId: data.id,
+          name: data.name,
+          tags: data.tags || data.category || "",
+          thumb: data.thumb || data.image_url || null,
+          photos: data.photos || [],
+        };
+
+        setPlace(mappedPlace);
+      } catch (error) {
+        console.error("장소 조회 실패:", error);
+        setPlaceError(error.message);
+        setPlace(null);
+      } finally {
+        setPlaceLoading(false);
+      }
+    };
+
+    fetchPlace();
+  }, [placeId]);
 
   const placePhoto = place?.thumb || place?.photos?.[0];
 
@@ -469,23 +518,14 @@ function SubmissionPage() {
   async function handleComplete() {
     if (isSubmitting) return;
 
-    if (!placeId || !place) {
-      setSubmitError("장소 정보가 없습니다.");
-      return;
-    }
-
-    // 백엔드 DB 장소 ID 확인
-    if (!place.dbId) {
-      setSubmitError(
-        "해당 장소의 DB 연결 정보가 없습니다. 관리자에게 문의해주세요.",
-      );
+    if (!place || !place.id) {
+      setSubmitError("장소 정보를 불러오지 못했습니다.");
       return;
     }
 
     setIsSubmitting(true);
     setSubmitError("");
 
-    // 접근성 항목
     const accessibilityOptions = [
       "계단",
       "경사로",
@@ -494,7 +534,6 @@ function SubmissionPage() {
       "휠체어 가능",
     ];
 
-    // 시설 항목
     const facilitiesOptions = [
       "유아의자",
       "장애인석",
@@ -503,10 +542,9 @@ function SubmissionPage() {
       "주차",
     ];
 
-    // 백엔드 SubmissionCreate 스키마에 맞게 데이터 구성
+    // 백엔드 SubmissionCreate 스키마에 맞게 구성
     const submissionData = {
-      // 중요: 프론트엔드 id가 아니라 실제 DB id 전송
-      place_id: Number(place.dbId),
+      place_id: Number(place.id),
 
       accessibility: selectedCategories.filter((item) =>
         accessibilityOptions.includes(item),
@@ -522,14 +560,12 @@ function SubmissionPage() {
       content: review.trim() || null,
     };
 
-    console.log("[1] 선택 장소:", place.name);
-    console.log("[2] 프론트엔드 장소 ID:", place.id);
-    console.log("[3] 백엔드 DB 장소 ID:", place.dbId);
-    console.log("[4] 입력 원문:", review);
-    console.log("[5] 전송 데이터:", JSON.stringify(submissionData));
+    console.log("[1] DB 장소:", place.name);
+    console.log("[2] DB 장소 ID:", place.id);
+    console.log("[3] 입력 리뷰:", review);
+    console.log("[4] 전송 데이터:", submissionData);
 
     try {
-      // 백엔드 API 호출 및 DB 저장
       const result = await createSubmission(submissionData);
 
       console.log("제보 등록 성공:", result);
@@ -542,6 +578,45 @@ function SubmissionPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  // 장소 조회 중
+  if (placeLoading) {
+    return (
+      <div className="submission-app">
+        <div className="bluebar"></div>
+        <p style={{ textAlign: "center", padding: "40px" }}>
+          장소 정보를 불러오는 중입니다.
+        </p>
+        <BottomTabBar />
+      </div>
+    );
+  }
+
+  // 장소 조회 실패
+  if (placeError || !place) {
+    return (
+      <div className="submission-app">
+        <div className="bluebar"></div>
+        <p
+          style={{
+            color: "red",
+            textAlign: "center",
+            padding: "40px 20px",
+          }}
+        >
+          {placeError || "장소 정보가 없습니다."}
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          style={{ display: "block", margin: "0 auto" }}
+        >
+          돌아가기
+        </button>
+        <BottomTabBar />
+      </div>
+    );
   }
 
   // 제보 등록 완료 화면
@@ -579,49 +654,45 @@ function SubmissionPage() {
           </div>
         </div>
 
-        {place && (
+        {/* 장소 카드 */}
+        <button
+          type="button"
+          className="complete-place-card"
+          onClick={() => navigate(`/places/${place.id}`)}
+        >
+          <div className="complete-place-photo">
+            {placePhoto ? (
+              <img src={placePhoto} alt={place.name} />
+            ) : (
+              <span>가게 사진이 없습니다.</span>
+            )}
+          </div>
+
+          <div className="complete-place-info">
+            <div className="complete-place-text">
+              <h2 className="complete-place-name">{place.name}</h2>
+
+              <span className="complete-place-category">
+                {Array.isArray(place.tags) ? place.tags.join(", ") : place.tags}
+              </span>
+            </div>
+          </div>
+        </button>
+
+        {/* 방금 작성한 리뷰 보기 */}
+        <div className="complete-review">
           <button
             type="button"
-            className="complete-place-card"
-            onClick={() => navigate("/places/" + place.id)}
+            className="complete-review-button"
+            onClick={() =>
+              navigate(`/places/${place.id}`, {
+                state: { openReviews: true },
+              })
+            }
           >
-            <div className="complete-place-photo">
-              {placePhoto ? (
-                <img src={placePhoto} alt={place.name} />
-              ) : (
-                <span>가게 사진이 없습니다.</span>
-              )}
-            </div>
-
-            <div className="complete-place-info">
-              <div className="complete-place-text">
-                <h2 className="complete-place-name">{place.name}</h2>
-
-                <span className="complete-place-category">
-                  {Array.isArray(place.tags)
-                    ? place.tags.join(", ")
-                    : place.tags}
-                </span>
-              </div>
-            </div>
+            방금 쓴 리뷰 보러가기
           </button>
-        )}
-
-        {place && (
-          <div className="complete-review">
-            <button
-              type="button"
-              className="complete-review-button"
-              onClick={() =>
-                navigate("/places/" + place.id, {
-                  state: { openReviews: true },
-                })
-              }
-            >
-              방금 쓴 리뷰 보러가기
-            </button>
-          </div>
-        )}
+        </div>
 
         <BottomTabBar />
       </div>
@@ -634,7 +705,7 @@ function SubmissionPage() {
       <div className="bluebar"></div>
 
       <div className="submission-place-name">
-        <h2>{place?.name || "가게 정보 없음"}</h2>
+        <h2>{place.name}</h2>
       </div>
 
       {/* 카테고리 선택 */}

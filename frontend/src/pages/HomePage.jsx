@@ -264,6 +264,30 @@ const convertFacts = (dbFacts = []) => {
   return result;
 };
 
+// 승인된 DB 접근성 정보를 기존 facts에 반영
+const applyApprovedAccessibility = (facts, accessibility = []) => {
+  const result = {
+    ...facts,
+    access: { ...facts.access },
+  };
+
+  accessibility.forEach((value) => {
+    const normalizedValue = normalize(value);
+
+    Object.entries(FACT_VALUE_RULES.access).forEach(([item, keywords]) => {
+      const matched = keywords.some((keyword) =>
+        normalizedValue.includes(normalize(keyword)),
+      );
+
+      if (matched) {
+        result.access[item] = true;
+      }
+    });
+  });
+
+  return result;
+};
+
 export default function HomePage() {
   const navigate = useNavigate();
 
@@ -309,9 +333,18 @@ export default function HomePage() {
 
               const factsData = await factsResponse.json();
 
+              // 기존 place_facts 변환
+              const convertedFacts = convertFacts(factsData.facts || []);
+
+              // 승인된 submissions 접근성 정보를 기존 facts에 반영
+              const finalFacts = applyApprovedAccessibility(
+                convertedFacts,
+                place.accessibility || [],
+              );
+
               return {
                 ...place,
-                facts: convertFacts(factsData.facts || []),
+                facts: finalFacts,
                 tags: place.category || "",
                 reviewCount: place.review_count ?? 0,
                 thumb: place.thumbnail ?? null,
@@ -319,9 +352,15 @@ export default function HomePage() {
             } catch (error) {
               console.error(`${place.name} facts 조회 실패:`, error);
 
+              // facts 조회 실패 시에도 /places의 접근성 정보 반영
+              const convertedFacts = convertFacts([]);
+
               return {
                 ...place,
-                facts: convertFacts([]),
+                facts: applyApprovedAccessibility(
+                  convertedFacts,
+                  place.accessibility || [],
+                ),
                 tags: place.category || "",
                 reviewCount: place.review_count ?? 0,
                 thumb: place.thumbnail ?? null,

@@ -71,7 +71,7 @@ import BottomTabBar from "../components/BottomTabBar";
 import BottomSheet from "./BottomSheet";
 import "./PlaceDetailPage.css";
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
@@ -79,11 +79,16 @@ const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 function PlaceDetailPage() {
   const { placeId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [place, setPlace] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // 방금 쓴 리뷰 보기에서 전달받은 상태
+  // const openReviews = location.state?.openReviews === true;
+  const openReviews = location.state?.openReviews === true;
 
   useEffect(() => {
     const fetchPlace = async () => {
@@ -99,7 +104,6 @@ function PlaceDetailPage() {
 
         const data = await response.json();
 
-        // 기존 프론트 컴포넌트와 호환되는 형태로 변환
         const mappedPlace = {
           ...data,
           id: data.id,
@@ -173,8 +177,11 @@ function PlaceDetailPage() {
         <AISummary placeId={place.id} />
       </main>
 
-      <BottomSheet place={place} />
-
+      <BottomSheet
+        key={place?.id}
+        place={place}
+        openReviews={location.state?.openReviews === true}
+      />
       <BottomTabBar />
     </div>
   );
