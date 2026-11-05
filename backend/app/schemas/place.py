@@ -18,3 +18,4 @@ class PlaceResponse(BaseModel):
     description: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+    review_count: int = 0
