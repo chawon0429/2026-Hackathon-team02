@@ -69,7 +69,8 @@
     border-radius: 20px;
 
     color: #333;
-    font-size: 20px;
+    font-size: 17px;
+    font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
 
@@ -81,7 +82,7 @@
 
 .category-button.selected {
     background: #0057e7;
-    color: #F0f0f0;
+    color: white;
 }
 
 .category-divider {
@@ -139,7 +140,7 @@
 
 .question-button.selected {
     background: #0057e7;
-    color: #F0f0f0;
+    color: white
 }
 
 .submission-review {

@@ -250,11 +250,12 @@ function BottomSheet({ place }) {
 
                         <button
                             type="button"
-                            className={`sheet-review-arrow${!showAllReviews ? " is-right" : ""}`}
+                            className={`sheet-review-arrow${reviews.length === 0 || !showAllReviews ? " is-right" : ""}`}
                             onClick={() => setShowAllReviews(!showAllReviews)}
-                            aria-expanded={showAllReviews}
+                            disabled={reviews.length === 0}
+                            aria-expanded={reviews.length > 0 && showAllReviews}
                         >
-                            {showAllReviews ? "⌄" : "›"}
+                            {reviews.length === 0 || !showAllReviews ? "›" : "⌄"}
                         </button>
                     </div>
 

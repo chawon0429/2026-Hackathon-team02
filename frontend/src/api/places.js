@@ -44,3 +44,7 @@ export async function getPlace(placeId) {
 export async function getPlaceFacts(placeId) {
     return requestJson(`/api/v1/places/${placeId}/facts`);
 }
+
+export async function getPlaces() {
+    return requestJson("/api/v1/places");
+}
