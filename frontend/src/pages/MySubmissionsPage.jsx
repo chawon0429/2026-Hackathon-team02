@@ -31,37 +31,6 @@ const STATUS_LABEL = {
   rejected: "반려",
 };
 
-const BTN = {
-  padding: "6px 12px",
-  borderRadius: 8,
-  fontSize: 14,
-  fontWeight: 800,
-  cursor: "pointer",
-  border: "1.5px solid #0057e7",
-};
-
-const BTN_APPROVE = {
-  ...BTN,
-  background: "#0057e7",
-  color: "#fff",
-};
-
-const BTN_REJECT = {
-  ...BTN,
-  background: "#fff",
-  color: "#0057e7",
-};
-
-const REJECTED_BADGE = {
-  padding: "6px 12px",
-  borderRadius: 8,
-  fontSize: 14,
-  fontWeight: 800,
-  background: "#fff",
-  color: "#c62828",
-  border: "1.5px solid #c62828",
-};
-
 function normalizeStatus(status) {
   const value = String(status || "")
     .trim()
@@ -84,108 +53,95 @@ function normalizeStatus(status) {
 
 function getFloor(address) {
   if (!address) return "";
-
   const match = String(address).match(/(?:지하\s*\d+층|B\d+층|\d+층)/);
-
   return match ? match[0].replace(/\s/g, "") : "";
 }
 
-function Chevron() {
+function CheckedCircleIcon() {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M9 5l7 7-7 7" />
-    </svg>
+    <div className="mission-check-circle is-done">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
   );
 }
 
-function ProfileSection({ user, submissions, onSelectTab }) {
-  const approvedCount = submissions.filter(
-    (s) => s.status === "approved",
-  ).length;
+function UncheckedCircleIcon() {
+  return <div className="mission-check-circle is-undone" />;
+}
 
-  const pendingCount = submissions.filter((s) => s.status === "pending").length;
+// 상단 프로필 및 단순 수치 요약 영역 (화살표 없는 요약 카드 형태)
+function ProfileSection({ user = {}, submissions = [] }) {
+  const safeSubmissions = Array.isArray(submissions) ? submissions : [];
+
+  const approvedCount = safeSubmissions.filter(
+    (s) => s && s.status === "approved",
+  ).length;
+  const pendingCount = safeSubmissions.filter(
+    (s) => s && s.status === "pending",
+  ).length;
+  const rejectedCount = safeSubmissions.filter(
+    (s) => s && s.status === "rejected",
+  ).length;
+  const totalCount = safeSubmissions.length;
 
   const stats = [
-    {
-      label: "전체 제보",
-      count: approvedCount + pendingCount,
-      tab: "all",
-    },
-    {
-      label: "승인 완료",
-      count: approvedCount,
-      tab: "approved",
-    },
-    {
-      label: "승인 대기",
-      count: pendingCount,
-      tab: "pending",
-    },
+    { label: "전체 제보", count: totalCount },
+    { label: "승인 완료", count: approvedCount },
+    { label: "승인 대기", count: pendingCount },
+    { label: "반려", count: rejectedCount },
   ];
 
   return (
     <section className="profile">
       <div className="profile__row">
         <div className="profile__avatar" aria-hidden="true" />
-
-        <h1 className="profile__name">{user.nickname || "사용자"}</h1>
-
-        {user.isAdmin && <span className="badge-admin">관리자</span>}
+        <div className="profile__user-info">
+          <h1 className="profile__name">{user?.nickname || "테스트사용자1"}</h1>
+          {user?.isAdmin && <span className="badge-admin">관리자</span>}
+        </div>
 
         <button type="button" className="btn-logout" onClick={() => {}}>
           로그아웃
         </button>
       </div>
 
+      {/* 화살표 없는 요약식 통계 칩 */}
       <div className="stats">
         {stats.map((s) => (
-          <button
-            type="button"
-            key={s.label}
-            className="stat"
-            onClick={() => onSelectTab(s.tab)}
-          >
-            <b>{s.label}</b>
-            <span>{s.count}건</span>
-            <Chevron />
-          </button>
+          <div key={s.label} className="stat">
+            <span>{s.label}</span>
+            <b>{s.count}건</b>
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-function SectionHeader({ title, onMore }) {
+function SectionHeader({ title }) {
   return (
     <div className="section__head">
       <h2>{title}</h2>
-
-      <button
-        type="button"
-        className="section__more"
-        onClick={onMore}
-        aria-label={`${title} 더보기`}
-      >
-        <Chevron />
-      </button>
     </div>
   );
 }
 
+// 내 타임라인 (정렬 + 세로선 + 탭 + 가게명 아래 소형 리뷰 텍스트 노출)
 function Timeline({
   isAdmin,
-  submissions,
-  places,
+  submissions = [],
+  places = {},
   loading,
   error,
   tab,
@@ -196,32 +152,31 @@ function Timeline({
   const [sort, setSort] = useState("latest");
 
   const list = useMemo(() => {
+    const safeList = Array.isArray(submissions) ? submissions : [];
     const filtered =
-      tab === "all" ? submissions : submissions.filter((s) => s.status === tab);
+      tab === "all" ? safeList : safeList.filter((s) => s && s.status === tab);
 
     return [...filtered].sort((a, b) => {
-      const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
-
-      const dateB = new Date(b.created_at || b.createdAt || 0).getTime();
+      const dateA = new Date(a?.created_at || a?.createdAt || 0).getTime();
+      const dateB = new Date(b?.created_at || b?.createdAt || 0).getTime();
 
       if (dateA !== dateB) {
         return sort === "latest" ? dateB - dateA : dateA - dateB;
       }
-
-      return sort === "latest" ? b.id - a.id : a.id - b.id;
+      return sort === "latest"
+        ? (b?.id || 0) - (a?.id || 0)
+        : (a?.id || 0) - (b?.id || 0);
     });
   }, [submissions, tab, sort]);
 
   return (
     <section className="section">
-      <SectionHeader
-        title={isAdmin ? "관리자 승인" : "내 타임라인"}
-        onMore={() => setTab("all")}
-      />
+      <SectionHeader title={isAdmin ? "관리자 승인" : "내 타임라인"} />
 
-      <div className="filters">
+      {/* 최신순/오래된순 정렬 + 구분선 + 알약 탭 */}
+      <div className="filters-row">
         <select
-          className="sort"
+          className="sort-select"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
           aria-label="정렬"
@@ -230,16 +185,16 @@ function Timeline({
           <option value="oldest">오래된순</option>
         </select>
 
-        <span className="filters__divider" />
+        <span className="filters-divider" />
 
-        <div role="tablist" className="tabs">
+        <div role="tablist" className="pill-tabs-list">
           {TABS.map((t) => (
             <button
               key={t.key}
               type="button"
               role="tab"
               aria-selected={tab === t.key}
-              className={`tab${tab === t.key ? " is-active" : ""}`}
+              className={`pill-tab-item ${tab === t.key ? "is-active" : ""}`}
               onClick={() => setTab(t.key)}
             >
               {t.label}
@@ -248,6 +203,7 @@ function Timeline({
         </div>
       </div>
 
+      {/* 타임라인 카드 목록 */}
       <ul className="cards">
         {loading ? (
           <li className="empty">제보를 불러오는 중입니다.</li>
@@ -256,67 +212,88 @@ function Timeline({
         ) : (
           <>
             {list.map((item) => {
-              const place = places[item.place_id];
+              if (!item) return null;
+              const place =
+                places && item.place_id ? places[item.place_id] : null;
 
               const storeName =
-                place?.name || item.place_name || `장소 ${item.place_id}`;
+                place?.name || item.place_name || `장소 ${item.place_id || ""}`;
 
               const floor =
                 getFloor(place?.address) || item.floor || place?.category || "";
 
+              // 작성된 실제 리뷰/코멘트 텍스트
+              const userComment =
+                item.content ||
+                item.comment ||
+                item.description ||
+                item.text ||
+                item.details ||
+                item.review ||
+                "";
+
               return (
-                <li key={item.id} className="card">
-                  {isAdmin ? (
-                    <>
-                      <span className="card__store">
-                        {item.user_nickname || `사용자 ${item.user_id}`}
+                <li key={item.id} className="card card--submission">
+                  <div className="card__header-row">
+                    <div className="card__place-info">
+                      {isAdmin ? (
+                        <>
+                          <span className="card__store">
+                            {item.user_nickname || `사용자 ${item.user_id}`}
+                          </span>
+                          <span className="card__dong">{storeName}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="card__store">{storeName}</span>
+                          {floor && <span className="card__dong">{floor}</span>}
+                        </>
+                      )}
+                    </div>
+
+                    {isAdmin && item.status === "pending" ? (
+                      <div className="admin-btn-group">
+                        <button
+                          type="button"
+                          className="btn-approve"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            onReview && onReview(item.id, "approved")
+                          }
+                        >
+                          승인
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-reject"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            onReview && onReview(item.id, "rejected")
+                          }
+                        >
+                          반려
+                        </button>
+                      </div>
+                    ) : (
+                      <span className={`status status--${item.status}`}>
+                        {STATUS_LABEL[item.status] || item.status}
                       </span>
+                    )}
+                  </div>
 
-                      <span className="card__dong">{storeName}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="card__store">{storeName}</span>
-
-                      <span className="card__dong">{floor}</span>
-                    </>
+                  {/* 가게 이름 밑에 작은 크기/옅은 색상의 리뷰 코멘트 표시 */}
+                  {userComment && (
+                    <p className="card__inline-comment">{userComment}</p>
                   )}
 
-                  {isAdmin && item.status === "pending" ? (
-                    <span
-                      style={{
-                        display: "flex",
-                        gap: 6,
-                        marginLeft: "auto",
-                      }}
-                    >
-                      <button
-                        type="button"
-                        style={BTN_APPROVE}
-                        disabled={busyId === item.id}
-                        onClick={() => onReview(item.id, "approved")}
-                      >
-                        승인
-                      </button>
-
-                      <button
-                        type="button"
-                        style={BTN_REJECT}
-                        disabled={busyId === item.id}
-                        onClick={() => onReview(item.id, "rejected")}
-                      >
-                        반려
-                      </button>
-                    </span>
-                  ) : (
-                    <span
-                      className={`status status--${item.status}`}
-                      style={
-                        item.status === "rejected" ? REJECTED_BADGE : undefined
-                      }
-                    >
-                      {STATUS_LABEL[item.status] || item.status}
-                    </span>
+                  {/* 반려 항목 시 반려 사유 표시 */}
+                  {item.status === "rejected" && (
+                    <p className="card__inline-reject-reason">
+                      반려 사유:{" "}
+                      {item.reject_reason ||
+                        item.reason ||
+                        "정보 미흡으로 반려되었습니다."}
+                    </p>
                   )}
                 </li>
               );
@@ -339,19 +316,10 @@ function Timeline({
 function Missions({ points }) {
   return (
     <section className="section">
-      <SectionHeader title="포인트 미션" onMore={() => {}} />
+      <SectionHeader title="포인트 미션" />
 
-      {points !== null && (
-        <p
-          style={{
-            margin: "0 0 10px",
-            fontSize: 16,
-            fontWeight: 800,
-            color: "#0057e7",
-          }}
-        >
-          내 포인트 {points}P
-        </p>
+      {points !== null && points !== undefined && (
+        <p className="my-points-badge">내 포인트 {points}P</p>
       )}
 
       <ul className="cards">
@@ -364,30 +332,10 @@ function Missions({ points }) {
               <span className="mission__title">
                 {i + 1}. {m.title}
               </span>
-
               <span className="mission__point">{m.point}P</span>
             </div>
 
-            <span
-              className={`check${m.done ? " is-done" : ""}`}
-              role="img"
-              aria-label={m.done ? "완료" : "미완료"}
-            >
-              {m.done && (
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#fff"
-                  strokeWidth="3.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12.5l4.5 4.5L19 7.5" />
-                </svg>
-              )}
-            </span>
+            {m.done ? <CheckedCircleIcon /> : <UncheckedCircleIcon />}
           </li>
         ))}
       </ul>
@@ -397,12 +345,11 @@ function Missions({ points }) {
 
 export default function MySubmissionsPage() {
   const [searchParams] = useSearchParams();
-
   const isAdmin = searchParams.get("admin") === "1";
 
   const [user, setUser] = useState({
     id: DEMO_USER_ID,
-    nickname: "",
+    nickname: "테스트사용자1",
     isAdmin,
   });
 
@@ -412,11 +359,10 @@ export default function MySubmissionsPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [userLoading, setUserLoading] = useState(!isAdmin);
-  const [userError, setUserError] = useState("");
+  const [userLoading, setUserLoading] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
-  const [points, setPoints] = useState(null);
+  const [points, setPoints] = useState(100);
 
   useEffect(() => {
     setUser((prev) => ({
@@ -425,29 +371,22 @@ export default function MySubmissionsPage() {
     }));
   }, [isAdmin]);
 
-  // 사용자 정보 조회
   useEffect(() => {
-    if (isAdmin) {
-      setUserLoading(false);
-      return;
-    }
+    if (isAdmin) return;
 
     let alive = true;
 
     getUser(DEMO_USER_ID)
       .then((userData) => {
-        if (!alive) return;
-
+        if (!alive || !userData) return;
         setUser({
-          id: userData.id,
-          nickname: userData.nickname,
+          id: userData.id || DEMO_USER_ID,
+          nickname: userData.nickname || "테스트사용자1",
           isAdmin: false,
         });
       })
       .catch((err) => {
-        if (!alive) return;
-
-        setUserError(err.message || "사용자 정보를 불러오지 못했습니다.");
+        console.warn("사용자 정보 조회 실패 (fallback):", err);
       })
       .finally(() => {
         if (alive) setUserLoading(false);
@@ -458,7 +397,6 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin]);
 
-  // 제보 및 장소 조회
   useEffect(() => {
     let alive = true;
 
@@ -467,35 +405,43 @@ export default function MySubmissionsPage() {
       setError("");
 
       try {
-        const submissionResult = isAdmin
-          ? await fetch(`${API_BASE}/admin/submissions`)
-          : await getMySubmissions();
-
-        let submissionList;
+        let submissionList = [];
 
         if (isAdmin) {
-          if (!submissionResult.ok) {
-            throw new Error("관리자 제보 조회에 실패했습니다.");
+          const res = await fetch(`${API_BASE}/admin/submissions`);
+          if (res.ok) {
+            submissionList = await res.json();
           }
-
-          submissionList = await submissionResult.json();
         } else {
-          submissionList = Array.isArray(submissionResult)
-            ? submissionResult
-            : submissionResult?.items || [];
+          try {
+            const submissionResult = await getMySubmissions();
+            submissionList = Array.isArray(submissionResult)
+              ? submissionResult
+              : submissionResult?.items || [];
+          } catch (e) {
+            console.warn("내 제보 조회 실패 (fallback):", e);
+            submissionList = [];
+          }
         }
 
-        const placesResponse = await fetch(`${API_BASE}/places`);
+        let placeMap = {};
+        try {
+          const placesResponse = await fetch(`${API_BASE}/places`);
+          if (placesResponse.ok) {
+            const placesData = await placesResponse.json();
+            (Array.isArray(placesData) ? placesData : []).forEach((place) => {
+              if (place && place.id) {
+                placeMap[place.id] = place;
+              }
+            });
+          }
+        } catch (e) {
+          console.warn("장소 목록 조회 실패:", e);
+        }
 
-        const placesData = placesResponse.ok ? await placesResponse.json() : [];
-
-        const placeMap = {};
-
-        (Array.isArray(placesData) ? placesData : []).forEach((place) => {
-          placeMap[place.id] = place;
-        });
-
-        const normalized = submissionList.map((item) => ({
+        const normalized = (
+          Array.isArray(submissionList) ? submissionList : []
+        ).map((item) => ({
           ...item,
           place_id: Number(item.place_id),
           status: normalizeStatus(item.status),
@@ -507,9 +453,8 @@ export default function MySubmissionsPage() {
         }
       } catch (err) {
         console.error("내 페이지 데이터 조회 실패:", err);
-
         if (alive) {
-          setError(err.message || "데이터를 불러오지 못했습니다.");
+          setError("데이터를 불러오지 못했습니다.");
         }
       } finally {
         if (alive) setLoading(false);
@@ -523,7 +468,6 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin, reloadKey]);
 
-  // 포인트 조회
   useEffect(() => {
     if (isAdmin) return;
 
@@ -531,16 +475,17 @@ export default function MySubmissionsPage() {
 
     getMyPoints(DEMO_USER_ID)
       .then((result) => {
-        if (alive) setPoints(result?.points ?? 0);
+        if (alive) setPoints(result?.points ?? 100);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (alive) setPoints(0);
+      });
 
     return () => {
       alive = false;
     };
   }, [isAdmin, reloadKey]);
 
-  // 관리자 승인/반려
   const onReview = async (id, status) => {
     let rejectReason;
 
@@ -585,23 +530,17 @@ export default function MySubmissionsPage() {
 
   return (
     <div className="mypage">
-      <div className="mypage__topbar" />
+      <header className="mypage__header">
+        <h1 className="mypage__title">내 활동</h1>
+      </header>
 
       <main className="mypage__body">
         {userLoading ? (
           <section className="profile">
             <h1 className="profile__name">사용자 정보를 불러오는 중입니다.</h1>
           </section>
-        ) : userError ? (
-          <section className="profile">
-            <h1 className="profile__name">{userError}</h1>
-          </section>
         ) : (
-          <ProfileSection
-            user={user}
-            submissions={submissions}
-            onSelectTab={setTab}
-          />
+          <ProfileSection user={user} submissions={submissions} />
         )}
 
         <Timeline

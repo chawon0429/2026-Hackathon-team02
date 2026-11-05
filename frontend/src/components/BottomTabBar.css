@@ -1,4 +1,4 @@
-.tabbar {
+/* .tabbar {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 430px; height: 76px; background: #fff;
     border-top: 1px solid #ccc; display: flex; justify-content: space-around; align-items: center;
@@ -17,4 +17,77 @@
 }
 .tabbar__item:focus-visible { 
     outline: 2px solid #0057e7; outline-offset: 2px; 
+} */
+
+.bottom-tab-bar {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100% !important;
+  max-width: 440px !important; /* 메인 컨테이너 최대 너비와 일치 */
+  height: 68px;
+  background-color: #ffffff !important;
+  border-top: 1px solid #e9ecef;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000 !important; /* 다른 레이어보다 최상단에 배치 */
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  padding: 0 12px;
+  pointer-events: auto !important;
+}
+
+.bottom-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  height: 100%;
+  padding: 6px 0;
+  cursor: pointer !important;
+  color: #777777;
+  transition: color 0.15s ease-in-out;
+  pointer-events: auto !important;
+  user-select: none;
+}
+
+.tab-icon-wrapper {
+  width: 38px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.tab-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+/* 활성화된 탭 스타일 (Figma 원형 칩 강조 효과) */
+.bottom-tab-item.active {
+  color: #0056eb;
+}
+
+.bottom-tab-item.active .tab-icon-wrapper {
+  background-color: #e8f0fe;
+}
+
+.bottom-tab-item.active .tab-label {
+  font-weight: 800;
+  color: #0056eb;
+}
+
+.bottom-tab-item:focus-visible {
+  outline: 2px solid #0056eb;
+  outline-offset: -2px;
 }
