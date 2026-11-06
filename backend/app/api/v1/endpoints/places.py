@@ -53,9 +53,6 @@ def get_places(db: Session = Depends(get_db)):
     for submission in approved_submissions:
         place_id = submission.place_id
 
-        # 승인 리뷰 개수
-        review_count_map[place_id] += 1
-
         # 접근성 정보 분류
         for item in submission.accessibility or []:
             if item:
@@ -65,6 +62,13 @@ def get_places(db: Session = Depends(get_db)):
         for item in submission.facilities or []:
             if item:
                 facilities_map[place_id].add(item)
+
+
+    # 승인 여부와 관계없이 전체 제보 수 계산
+    all_submissions = db.query(Submission).all()
+
+    for submission in all_submissions:
+        review_count_map[submission.place_id] += 1
 
     # 장소별 응답 생성
     result = []
