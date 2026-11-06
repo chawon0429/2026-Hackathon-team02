@@ -12,7 +12,9 @@ async function requestJson(url) {
         const contentType = response.headers.get("content-type") || "";
 
         if (!contentType.includes("application/json")) {
-            throw new Error(`API가 JSON이 아닌 응답을 반환했습니다. (${response.status})`);
+            throw new Error(
+                `정보를 불러오는 중 문제가 발생했어요. 다시 시도해 주세요. (${response.status})`
+            );
         }
 
         const data = await response.json();
@@ -24,7 +26,7 @@ async function requestJson(url) {
         return data;
     } catch (err) {
         if (err.name === "AbortError") {
-            throw new Error("백엔드 응답 시간 초과. DB 연결을 확인하세요.");
+            throw new Error("정보를 불러오지 못했어요. 다시 시도해 주세요.");
         }
         throw err;
     } finally {
@@ -38,6 +40,6 @@ export async function getPlace(id) {
     return requestJson(`/api/v1/places/${id}`);
 }
 
-export async function getPlaceFacts(id) {
-    return requestJson(`/api/v1/places/${id}/facts`);
+export async function getPlaceFacts(placeId) {
+    return requestJson(`/api/v1/places/${placeId}/facts`);
 }

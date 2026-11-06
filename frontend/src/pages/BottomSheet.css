@@ -1,12 +1,12 @@
 .bottom-sheet {
     position: fixed;
-    bottom: 76px;
+    bottom: 68px;
     left: 50%;
     transform: translateX(-50%);
 
     width: 100%;
     max-width: 430px;
-    height: 30%;
+    height: 20%;
 
     background-color: white;
     border-radius: 20px 20px 0 0;
@@ -20,7 +20,7 @@
 }
 
 .bottom-sheet.open {
-    height: calc(100% - 116px);
+    height: calc(100% - 108px);
 }
 
 .sheet-handle {
@@ -64,28 +64,35 @@
 
 .sheet-categories {
     display: flex;
-    border: 2px solid #c9c9c9;
-    border-radius: 14px;
-    padding: 6px 4px;
-    gap: 2px;
+    align-items: center;
+    gap: 0;
+
+    padding: 12px 4px;
+    margin: 8px 0 16px;
+
+    background: white;
+    border: 1px solid #e2e7ed;
+    border-radius: 20px;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
 }
 
 .sheet-category {
     flex: 1;
     min-width: 0;
     min-height: 64px;
-    padding: 6px 0;
-    background: white;
-    border: none;
-    border-radius: 10px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
 
-    color: #333;
+    padding: 4px 0;
+    background: transparent;
+    border: none;
+
+    color: #444;
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
@@ -99,7 +106,7 @@
 }
 
 .sheet-category.is-active {
-    background: #d3e2ff;
+    background: transparent;
     color: #0057e7;
     font-weight: 800;
 }
@@ -394,4 +401,80 @@
 
 .sheet-review-arrow.is-right {
     transform: translateY(0px);
+}
+
+
+.comment-window {
+    position: fixed;
+    top: 0;
+    bottom: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 100%;
+    max-width: 430px;
+
+    background-color: white;
+    z-index: 100;
+}
+
+.comment-window-bluebar {
+    height: 40px;
+    background-color: #0056EB;
+}
+
+.comment-window-close {
+    position: absolute;
+    top: 55px;
+    right: 18px;
+
+    background: none;
+    border: none;
+    padding: 0;
+
+    font-size: 36px;
+    font-weight: 400;
+    color: #111;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.comment-window-content {
+    height: calc(100% - 40px);
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 75px 20px 30px;
+}
+
+.comment-window-content h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.comment-window-content h1 span {
+    color: #0057e7;
+}
+
+.comment-window-place {
+    font-size: 14px;
+    color: #666;
+    margin: 0px 0 0px;
+}
+
+.comment-window .sheet-review-item {
+    padding: 18px 0;
+}
+
+.comment-window-empty {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    padding: 50px 0;
+}
+
+.sheet-category.is-active span {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
 }

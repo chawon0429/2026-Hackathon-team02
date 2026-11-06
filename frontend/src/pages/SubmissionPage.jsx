@@ -194,14 +194,17 @@ function SubmissionPage() {
     }
   }
 
-  // 장소 조회 중
   if (placeLoading) {
     return (
-      <div className="submission-app">
+      <div className="submission-app submission-loading-screen">
         <div className="bluebar"></div>
-        <p style={{ textAlign: "center", padding: "40px" }}>
-          장소 정보를 불러오는 중입니다.
-        </p>
+
+        <main className="submission-loading-main" role="status">
+          <div className="submission-loading-spinner"></div>
+          <p>장소 정보를 불러오는 중입니다</p>
+          <span>잠시만 기다려 주세요</span>
+        </main>
+
         <BottomTabBar />
       </div>
     );
