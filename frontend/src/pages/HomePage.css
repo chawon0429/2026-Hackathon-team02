@@ -248,3 +248,31 @@
 .places__message--error {
   color: #d93025;
 }
+/* AI 검색 결과 체크 목록 */
+.picks__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 16px 24px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.picks__item {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  box-sizing: border-box;
+}
+
+.picks__item svg {
+  flex: 0 0 14px;
+  margin-top: 4px;
+}
