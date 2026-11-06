@@ -1,46 +1,200 @@
-.place { 
-    list-style: none; 
+/* .place {
+  list-style: none;
 }
 .place__btn {
-    width: 100%; text-align: left; background: #fff; color: #111; font: inherit; cursor: pointer;
-    border: 1px solid #c9c9c9; border-radius: 14px; padding: 14px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid #c9c9c9;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
-.place__btn:focus-visible { 
-    outline: 3px solid #0057e7; outline-offset: 2px; 
+.place__btn:focus-visible {
+  outline: 3px solid #0057e7;
+  outline-offset: 2px;
 }
-.place__top { 
-    display: flex; justify-content: space-between; gap: 12px; 
+.place__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
-.place__name { 
-    margin: 0; font-size: 22px; font-weight: 700; 
+.place__name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
 }
-.place__meta { 
-    margin: 4px 0 0; font-size: 14px; color: #595959; 
+.place__meta {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #595959;
 }
-.place__thumb { 
-    width: 72px; height: 72px; flex: none; border-radius: 10px; background: #e5e5e5; overflow: hidden; 
+.place__thumb {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 10px;
+  background: #e5e5e5;
+  overflow: hidden;
 }
-.place__thumb img { 
-    width: 100%; height: 100%; object-fit: cover; 
+.place__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .place__facts {
-    list-style: none; margin: 12px 0 0; padding: 0;
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 8px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 8px;
 }
-.fact { 
-    display: flex; align-items: center; gap: 4px; font-size: 14px; 
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
 }
-.fact--yes { 
-    color: #0046b8; font-weight: 600; 
+.fact--yes {
+  color: #0046b8;
+  font-weight: 600;
 }
-.fact--no { 
-    color: #595959; 
+.fact--unknown {
+  color: #999;
 }
-.fact--unknown { 
-    color: #8a4b00; 
-}
+
 .fact--unknown span:first-child {
-    width: 16px; height: 16px; border: 1px dashed currentColor; border-radius: 50%;
-    display: grid; place-items: center; font-size: 11px; flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1px dashed currentColor;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  flex: none;
+} */
+
+.place-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 18px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.place-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 87, 231, 0.08);
+}
+
+.place-card__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.place-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.place-card__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111111;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
+}
+
+.place-card__meta {
+  font-size: 13px;
+  color: #888888;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 사진 썸네일 박스 (이미지가 없어도 회색 박스 고정 노출) */
+.place-card__thumb {
+  width: 76px;
+  height: 76px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #e9ecef;
+}
+
+.place-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.place-card__thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #d9d9d9;
+}
+
+.place-card__address {
+  font-size: 13px;
+  color: #555555;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.place-card__description {
+  font-size: 13px;
+  color: #777777;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+/* 체크 태그 영역 */
+.place-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  border-top: 1px solid #f0f3f7;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.place-card__tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+}
+
+/* 파란색 체크가 활성화된 데이터 항목 */
+.place-card__tag-item.is-checked {
+  color: #222222;
+  font-weight: 700;
+}
+
+/* 해당 장소에 없는 항목 (회색 텍스트 처리) */
+.place-card__tag-item.is-unchecked {
+  color: #bbbbbb;
+  font-weight: 400;
+}
+
+.no-check-icon {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+  color: #cccccc;
+  font-weight: bold;
 }

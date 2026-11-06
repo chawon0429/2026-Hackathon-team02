@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export async function summarizeReviews(reviews) {
   const response = await fetch(
@@ -9,7 +10,7 @@ export async function summarizeReviews(reviews) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ reviews }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -18,32 +19,44 @@ export async function summarizeReviews(reviews) {
 
   return response.json();
 }
+
+// 현재 백엔드에 장소 요약 API가 확인되지 않아 임시 처리
 export async function summarizePlace(placeName) {
+  throw new Error("AI 장소 검색 API가 아직 연결되지 않았습니다.");
+}
+
+export async function summarizePlaceSubmissions(placeId) {
+  if (!placeId) {
+    throw new Error("장소 ID가 없습니다.");
+  }
+
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/analysis/place-summary`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ place_name: placeName }),
-    }
+    `${API_BASE_URL}/api/v1/admin/submissions?status=approved`
   );
 
   if (!response.ok) {
-    throw new Error("장소 검색에 실패했습니다.");
+    throw new Error("승인된 리뷰 조회 실패");
   }
 
-  return response.json();
-}
-export async function summarizePlaceSubmissions(placeId) {
-    const response = await fetch(
-        `${API_BASE_URL}/api/v1/analysis/places/${placeId}/submission-summary`
-    );
+  const submissions = await response.json();
 
-    if (!response.ok) {
-        throw new Error("제보 요약을 불러오지 못했습니다.");
-    }
+  const reviews = submissions
+    .filter(
+      (submission) =>
+        String(submission.place_id) === String(placeId) &&
+        submission.status === "approved" &&
+        submission.content
+    )
+    .map((submission) => submission.content);
 
-    return response.json();
+  if (reviews.length === 0) {
+    throw new Error("AI 요약할 승인된 리뷰가 없습니다.");
+  }
+
+  const result = await summarizeReviews(reviews);
+
+  return {
+    ...result,
+    summary: result.summary ?? result,
+  };
 }

@@ -1,143 +1,163 @@
 .place-detail {
-    width: 100%;
-    max-width: 430px;
-    margin: 0 auto;
-    min-height: 100vh;
-    background: white;
-    color: #111;
-    font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  }
+  max-width: 440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #111111;
+  display: flex;
+  flex-direction: column;
+  font-family:
+    "Pretendard",
+    -apple-system,
+    sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
 
-.bluebar {
-  position: fixed;
+/* 상단 파란색 헤더 (뒤로가기 화살표 안 잘리게 통합) */
+.detail-topbar {
+  height: 52px;
+  background-color: #0056eb;
   width: 100%;
-  max-width: 430px;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  z-index: 10;
+}
 
-  height: 40px;
-  background: #0056EB;
-  width: 100%;
+.btn-back {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.15s;
+}
+
+.btn-back:active {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .detail-main {
-  padding: 56px 24px 280px;
-}
-
-.back-button {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 25px;
-    cursor: pointer;
-    margin-left: -20px;
-}
-
-.store-info {
-    margin-top: 24px;
+  flex: 1;
+  padding: 20px 20px 100px;
+  overflow-y: auto;
+  background-color: #ffffff;
 }
 
 .store-info h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #111111;
 }
 
 .store-info p {
-    font-size: 14px;
-    color: #666;
-    margin-top: 5px;
+  font-size: 13.5px;
+  color: #666666;
+  margin: 0 0 16px 0;
 }
-
 
 .store-photos {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-top: 20px;
-}
-
-.store-photos::-webkit-scrollbar {
-    display: none;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 20px;
 }
 
 .store-photo {
-    flex: 0 0 115px;
-    width: 115px;
-    height: 115px;
-    padding: 0;
-    border: none;
-    border-radius: 10px;
-    background: #d9d9d9;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.store-photo:disabled {
-    cursor: default;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .store-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.photo-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.photo-modal img {
-    max-width: 95%;
-    max-height: 85%;
-    object-fit: contain;
-}
-
-.photo-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    border: none;
-    background: none;
-    color: white;
-    font-size: 32px;
-    cursor: pointer;
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
 .store-photo-empty {
-    width: 100%;
-    min-height: 115px;
-    background: #d9d9d9;
-    border-radius: 10px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #666;
-    font-size: 13px;
+  width: 100%;
+  height: 100px;
+  background-color: #f4f6f8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888888;
+  font-size: 13px;
 }
 
-.ai-summary h2{
-    font-size: 20px;
-    font-weight: 700;
-    margin-top: 16px;
-    margin-bottom: 8px;
+/* 로딩/오류 상태 화면 */
+.place-state-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.ai-summary p{
-    font-size: 13px;
-    line-height: 1.5;
-    color: #111;
-    margin: 0;
-    overflow-wrap: break-word;
+.place-state-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 40px 20px 100px;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.place-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3.5px solid #eef2f6;
+  border-top-color: #0056eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #222222;
+  margin: 0 0 6px 0;
+}
+
+.loading-sub {
+  font-size: 13px;
+  color: #888888;
+}
+
+.error-msg {
+  font-size: 15px;
+  color: #d93025;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.place-retry-button {
+  background: #0056eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
 }
