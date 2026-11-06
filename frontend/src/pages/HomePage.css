@@ -248,3 +248,12 @@
 .places__message--error {
   color: #d93025;
 }
+
+.home__logo {
+  width: auto;
+  height: 55px;
+  max-width: 110px;
+  object-fit: contain;
+  display: block;
+  transform: translateY(-18px);
+}

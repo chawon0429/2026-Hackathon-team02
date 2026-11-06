@@ -10,6 +10,7 @@ import facilityIcon from "../assets/cat-facility.svg";
 import menuIcon from "../assets/cat-menu.svg";
 import benefitIcon from "../assets/cat-benefit.svg";
 import orderIcon from "../assets/cat-order.svg";
+import logo from "../assets/logo2.png";
 
 import { getPlaces, getPlaceFacts } from "../api/places";
 import { summarizePlace } from "../api/analysis";
@@ -499,7 +500,7 @@ export default function HomePage() {
   return (
     <div className="home">
       <header className="home__header">
-        <h1 className="home__logo">로고</h1>
+        <img src={logo} alt="로고" className="home__logo" />
       </header>
 
       <main className="home__body">
