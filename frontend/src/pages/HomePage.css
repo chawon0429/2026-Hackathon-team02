@@ -112,6 +112,16 @@
   box-shadow: 0 4px 12px rgba(0, 87, 231, 0.08);
 }
 
+
+.home .search__input:focus,
+.home .search__input:focus-visible {
+  outline: none;
+}
+
+.search:focus-within {
+  box-shadow: 0 0 0 3px rgba(0, 87, 231, 0.25);
+}
+
 .search__input {
   flex: 1;
   border: 0;
@@ -248,7 +258,6 @@
 .places__message--error {
   color: #d93025;
 }
-
 .home__logo {
   width: auto;
   height: 55px;

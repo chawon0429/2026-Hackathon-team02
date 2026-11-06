@@ -347,7 +347,7 @@ function Timeline({
                             onReview && onReview(item.id, "approved")
                           }
                         >
-                          {busyId === item.id ? "처리 중..." : "승인완료"}
+                          {busyId === item.id ? "처리 중..." : "승인"}
                         </button>
                         <button
                           type="button"
