@@ -8,7 +8,7 @@ from app.models.place import Place
 from app.models.place_fact import PlaceFact
 
 from app.services.point_service import earn_points
-
+from app.integrations.llm_client import classify_review_keywords
 
 # --------------------------------------------------
 # 사용자 리뷰 등록
@@ -122,14 +122,80 @@ def review_submission(
                 raise ValueError("해당 장소가 DB에 존재하지 않습니다.")
 
             # 제보 항목을 장소 접근성 정보로 반영
+            # 승인 전에 AI 분석을 수행한다.
+            # 호출 실패 또는 결과 형식 오류 시 예외가 발생해 전체 트랜잭션이 롤백된다.
+            ai_items = classify_review_keywords(submission.content or "")
+
+            # AI 결과를 명시적으로 검증한다.
+            if not isinstance(ai_items, list):
+                raise ValueError("AI 분석 결과는 리스트여야 합니다.")
+
+            validated_items = []
+            seen_keywords = set()
+
+            for item in ai_items:
+                if not isinstance(item, dict):
+                    raise ValueError("AI 분석 결과 항목의 형식이 올바르지 않습니다.")
+
+                keyword = item.get("keyword")
+                summary = item.get("summary")
+
+                if not isinstance(keyword, str) or not keyword.strip():
+                    raise ValueError("AI 키워드가 비어 있거나 잘못되었습니다.")
+
+                if not isinstance(summary, str) or not summary.strip():
+                    raise ValueError("AI 요약이 비어 있거나 잘못되었습니다.")
+
+                keyword = keyword.strip()
+                summary = summary.strip()
+                normalized_keyword = keyword.casefold()
+
+                if normalized_keyword in seen_keywords:
+                    continue
+
+                seen_keywords.add(normalized_keyword)
+                validated_items.append({
+                    "keyword": keyword,
+                    "summary": summary,
+                })
+
+            # 기존 구조화 정보는 그대로 저장한다.
             fact_groups = {
                 "accessibility": submission.accessibility,
                 "facility": submission.facilities,
                 "usage_method": submission.usage_method,
                 "waiting_time": submission.waiting_time,
                 "min_order": submission.min_order,
-                "additional_info": submission.content,
             }
+
+            existing_facts = (
+                db.query(PlaceFact)
+                .filter(PlaceFact.place_id == place.id)
+                .all()
+            )
+
+            # 기존 장소 정보와 이번 승인에서 추가할 정보를 함께 비교한다.
+            seen_facts = {
+                (fact.fact_type, fact.value.strip().casefold())
+                for fact in existing_facts
+            }
+
+            def add_fact_once(fact_type: str, value: str, evidence: str | None):
+                normalized_value = value.strip().casefold()
+                key = (fact_type, normalized_value)
+
+                if key in seen_facts:
+                    return
+
+                db.add(
+                    PlaceFact(
+                        place_id=place.id,
+                        fact_type=fact_type,
+                        value=value.strip(),
+                        evidence=evidence,
+                    )
+                )
+                seen_facts.add(key)
 
             for fact_type, values in fact_groups.items():
                 if not values:
@@ -138,17 +204,24 @@ def review_submission(
                 items = values if isinstance(values, list) else [values]
 
                 for value in items:
-                    if value is None or value == "":
+                    if value is None or not str(value).strip():
                         continue
 
-                    db.add(
-                        PlaceFact(
-                            place_id=place.id,
-                            fact_type=fact_type,
-                            value=str(value),
-                            evidence=submission.content,
-                        )
+                    add_fact_once(
+                        fact_type=fact_type,
+                        value=str(value),
+                        evidence=submission.content,
                     )
+
+            # AI 분석 결과는 별도 유형으로 저장한다.
+            # 화면에서는 keyword와 summary를 분리해 보여줄 수 있다.
+            for item in validated_items:
+                add_fact_once(
+                    fact_type="ai_keyword",
+                    value=item["keyword"],
+                    evidence=item["summary"],
+                )
+
 
             # 승인된 제보에 10P 적립
             # earn_points(

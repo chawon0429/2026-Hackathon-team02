@@ -55,6 +55,12 @@ function PlaceDetailPage() {
         } catch (err) {
           console.error("시설 정보 조회 실패:", err);
         }
+        const aiKeywords = (factData.facts || [])
+        .filter((fact) => fact.fact_type === "ai_keyword")
+        .map((fact) => ({
+          keyword: fact.value,
+          summary: fact.evidence || "",
+        }));
 
         const facts = {
           access: {},
@@ -103,8 +109,9 @@ function PlaceDetailPage() {
             name: mockFound.name,
             tags: mockFound.tags || "카페, 디저트",
             reviewCount: mockFound.reviewCount || 2,
-            photos: [],
-            facts: mockFound.facts || {},
+            photos: data.photos || [],
+            facts,
+            aiKeywords,
           });
         }
       } finally {

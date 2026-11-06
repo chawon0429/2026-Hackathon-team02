@@ -22,8 +22,62 @@ export async function summarizeReviews(reviews) {
 
 // 현재 백엔드에 장소 요약 API가 확인되지 않아 임시 처리
 export async function summarizePlace(placeName) {
-  throw new Error("AI 장소 검색 API가 아직 연결되지 않았습니다.");
+  if (!placeName || !placeName.trim()) {
+    throw new Error("장소 이름을 입력해 주세요.");
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/analysis/place-summary`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        place_name: placeName.trim(),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.detail || "AI 장소 요약에 실패했습니다.",
+    );
+  }
+
+  return response.json();
 }
+
+
+export async function classifyPlaceSummary(summary) {
+  if (!summary || !summary.trim()) {
+    throw new Error("분류할 장소 요약이 없습니다.");
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/analysis/report-classification`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        report_text: summary.trim(),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.detail || "AI 장소 정보 분류에 실패했습니다.",
+    );
+  }
+
+  return response.json();
+}
+
 
 export async function summarizePlaceSubmissions(placeId) {
   if (!placeId) {

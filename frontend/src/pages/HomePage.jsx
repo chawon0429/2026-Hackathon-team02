@@ -521,7 +521,6 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import BottomTabBar from "../components/BottomTabBar";
 import PlaceCard from "../components/PlaceCard";
 import { CATEGORIES, MOCK_PLACES } from "../mocks/places";
@@ -533,7 +532,10 @@ import benefitIcon from "../assets/cat-benefit.svg";
 import orderIcon from "../assets/cat-order.svg";
 
 import { getPlaces, getPlaceFacts } from "../api/places";
-import { summarizePlace } from "../api/analysis";
+import {
+  summarizePlace,
+  classifyPlaceSummary,
+} from "../api/analysis";
 
 import "./HomePage.css";
 
@@ -833,17 +835,42 @@ export default function HomePage() {
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
+  const [classification, setClassification] = useState(null);
+  const [classificationError, setClassificationError] = useState("");
 
   const [allPlaces, setAllPlaces] = useState([]);
   const [placesLoading, setPlacesLoading] = useState(true);
   const [placesError, setPlacesError] = useState("");
 
   // 현재 선택된 카테고리의 5개 세부 필터 항목 가져오기
-  const currentCategoryItems = useMemo(
-    () => CATEGORY_ITEMS_MAP[categoryKey] || [],
-    [categoryKey],
-  );
+  const CLASSIFICATION_FIELD_MAP = {
+  access: "accessibility",
+  facility: "facilities",
+  menu: "menu_product",
+  benefit: "payment_benefits",
+  order: "ordering_usage",
+};
 
+const currentClassification =
+  classification?.[CLASSIFICATION_FIELD_MAP[categoryKey]] ??
+  "정보 없음";
+  const rawClassification =
+  classification?.[CLASSIFICATION_FIELD_MAP[categoryKey]];
+
+const currentClassificationItems = Array.isArray(rawClassification)
+  ? rawClassification
+  : typeof rawClassification === "string" &&
+      rawClassification.trim() &&
+      rawClassification.trim() !== "정보 없음"
+    ? rawClassification
+        .split(/[,，、\n]+/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+const currentCategoryItems = useMemo(
+  () => CATEGORY_ITEMS_MAP[categoryKey] || [],
+  [categoryKey],
+);
   useEffect(() => {
     let cancelled = false;
 
@@ -906,30 +933,52 @@ export default function HomePage() {
     };
   }, []);
 
-  async function handleSearch(event) {
-    event.preventDefault();
-    const placeName = query.trim();
+  
+async function handleSearch(event) {
+  event.preventDefault();
 
-    if (!placeName) {
-      setSummary("");
-      setSearchError("요약할 장소명을 입력해 주세요.");
-      return;
-    }
+  const placeName = query.trim();
 
-    setSummaryLoading(true);
+  if (!placeName) {
     setSummary("");
-    setSearchError("");
-
-    try {
-      const result = await summarizePlace(placeName);
-      setSummary(result?.summary ?? result ?? "");
-    } catch (error) {
-      console.error("AI 요약 실패:", error);
-      setSearchError(error?.message ?? "장소 요약을 불러오지 못했습니다.");
-    } finally {
-      setSummaryLoading(false);
-    }
+    setClassification(null);
+    setSearchError("요약할 장소명을 입력해 주세요.");
+    return;
   }
+
+  setSummaryLoading(true);
+  setSummary("");
+  setClassification(null);
+  setSearchError("");
+  setClassificationError("");
+
+  try {
+    // 1. 장소 요약 생성
+    const result = await summarizePlace(placeName);
+    const summaryText = result?.summary ?? result;
+
+    setSummary(summaryText);
+
+    // 2. 생성된 요약문을 기존 5개 항목 분류 API에 전달
+    try {
+      const classified = await classifyPlaceSummary(summaryText);
+      setClassification(classified);
+    } catch (error) {
+      console.error("AI 장소 분류 실패:", error);
+      setClassificationError(
+        error?.message ?? "AI 장소 분류에 실패했습니다.",
+      );
+    }
+  } catch (error) {
+    console.error("AI 요약 실패:", error);
+    setSearchError(
+      error?.message ?? "장소 요약을 불러오지 못했습니다.",
+    );
+  } finally {
+    setSummaryLoading(false);
+  }
+}
+
 
   function changeCategory(key) {
     setCategoryKey(key);
@@ -1079,27 +1128,28 @@ export default function HomePage() {
             ))}
           </div>
         </section>
+          
+
+        {classificationError && (
+            <p className="place-summary__error">
+              {classificationError}
+            </p>
+        )}
 
         {/* 선택된 카테고리의 5개 필터 태그 오버라이드 노출 */}
+        {/* AI 검색 결과에서 확인된 항목만 표시 */}
         <section className="picks">
           <div className="picks__list">
-            {currentCategoryItems.map((item) => {
-              const selected = picked.includes(item);
-
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  className={
-                    selected ? "picks__item picks__item--active" : "picks__item"
-                  }
-                  onClick={() => togglePick(item)}
-                >
+            {currentClassificationItems.length > 0 ? (
+              currentClassificationItems.map((item, index) => (
+                <div className="picks__item" key={`${item}-${index}`}>
                   <CheckIcon />
                   <span>{item}</span>
-                </button>
-              );
-            })}
+                </div>
+              ))
+            ) : (
+              classification && <p>해당 카테고리의 검색 결과가 없습니다.</p>
+            )}
           </div>
         </section>
 
@@ -1113,10 +1163,6 @@ export default function HomePage() {
             <p className="places__message places__message--error">
               {placesError}
             </p>
-          )}
-
-          {!placesLoading && filteredPlaces.length === 0 && (
-            <p className="places__message">조건에 맞는 장소가 없습니다.</p>
           )}
 
           {!placesLoading &&

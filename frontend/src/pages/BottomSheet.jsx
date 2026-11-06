@@ -288,7 +288,30 @@ function BottomSheet({ place, openReviews = false }) {
                   </li>
                 ))}
             </ul>
+                        {place?.aiKeywords?.length > 0 && (
+              <section className="sheet-ai-facts">
+                <h2>AI가 정리한 이용 정보</h2>
 
+                <ul className="sheet-ai-facts-list">
+                  {place.aiKeywords.map(({ keyword, summary }, index) => (
+                    <li
+                      className="sheet-ai-fact"
+                      key={`${keyword}-${index}`}
+                    >
+                      <span className="sheet-ai-keyword">
+                        {keyword}
+                      </span>
+
+                      {summary && (
+                        <p className="sheet-ai-summary">
+                          {summary}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             <div className="sheet-divider"></div>
 
             <h2>사진·영상 리뷰</h2>
