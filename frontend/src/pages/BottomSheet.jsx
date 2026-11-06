@@ -150,18 +150,19 @@ function BottomSheet({
 
         const controller = new AbortController();
 
+
         async function fetchReviews() {
             setReviewsLoading(true);
             setReviewsError("");
 
             try {
                 const response = await fetch(
-                    "/api/v1/admin/submissions?status=approved",
+                    "/api/v1/admin/submissions",
                     { signal: controller.signal }
                 );
 
                 if (!response.ok) {
-                    throw new Error("승인된 리뷰 조회에 실패했습니다.");
+                    throw new Error("리뷰 조회에 실패했습니다.");
                 }
 
                 const data = await response.json();
@@ -170,31 +171,20 @@ function BottomSheet({
                     throw new Error("리뷰 데이터 형식이 올바르지 않습니다.");
                 }
 
-                const approvedReviews = data
+                const placeReviews = data
                     .filter((item) =>
-                        String(item.place_id) === String(place.id) &&
-                        item.status === "approved"
+                        String(item.place_id) === String(place.id)
                     )
-                    .map((item) => {
-                        const factsText = [
-                            ...(item.accessibility || []),
-                            ...(item.facilities || []),
-                            item.usage_method,
-                            item.waiting_time,
-                            item.min_order
-                        ].filter(Boolean).join(", ");
-
-                        return {
-                            reviewId: item.id,
-                            nickname: `사용자 ${item.user_id}`,
-                            date: "승인 완료",
-                            content: item.content || factsText || "작성된 내용이 없습니다.",
-                            likes: 0
-                        };
-                    });
+                    .map((item) => ({
+                        reviewId: item.id,
+                        nickname: `사용자 ${item.user_id}`,
+                        date: "",
+                        content: item.content || "작성된 내용이 없습니다.",
+                        likes: 0
+                    }));
 
                 if (!controller.signal.aborted) {
-                    setReviews(approvedReviews);
+                    setReviews(placeReviews);
                 }
 
             } catch (error) {
@@ -208,6 +198,7 @@ function BottomSheet({
                 }
             }
         }
+
 
         fetchReviews();
 
