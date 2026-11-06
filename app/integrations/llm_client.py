@@ -155,3 +155,122 @@ Google 검색을 이용해 위 장소에 관한 공개 웹 정보를 검색하�
         raise RuntimeError("Gemini가 장소 검색 요약 결과를 반환하지 않았습니다.")
 
     return result
+# app/integrations/llm_client.py
+
+# 서술형 리뷰 분류에 사용할 키워드 목록
+# 키워드를 추가할 때 이 목록을 수정하면 돼.
+REVIEW_KEYWORDS = [
+    "계단",
+    "경사로",
+    "자동문",
+    "엘리베이터",
+    "휠체어 가능",
+    "유아의자",
+    "장애인석",
+    "콘센트",
+    "흡연구역",
+    "주차",
+    "카드 결제",
+    "네이버 페이",
+    "제로 페이",
+    "포인트 적립",
+    "통신사 할인",
+    "예약없이 이용",
+    "예약 후 이용",
+    "포장·배달 이용",
+    "바로 입장",
+    "10분 이내",
+    "30분 이내",
+    "최소 주문 없음",
+    "1인 1메뉴",
+    "2인분 이상",
+]
+
+
+def classify_review_keywords(review_text: str) -> list[dict[str, str]]:
+    """서술형 제보에서 관련 키워드와 한 줄 요약을 추출합니다."""
+    if not review_text or not review_text.strip():
+        return []
+
+    client = _get_client()
+
+    prompt = f"""
+당신은 장소 이용 제보를 정리하는 도우미입니다.
+
+등록된 키워드:
+{json.dumps(REVIEW_KEYWORDS, ensure_ascii=False)}
+
+서술형 제보:
+{json.dumps(review_text, ensure_ascii=False)}
+
+작업:
+1. 제보 내용과 직접 관련된 키워드를 찾으세요.
+2. 관련 키워드마다 제보의 근거를 한 줄로 요약하세요.
+3. 등록된 키워드와 관련이 있지만 정확히 일치하지 않는 표현은
+   의미가 같을 때만 해당 키워드로 분류하세요.
+4. 등록된 키워드만으로 표현하기 어려운 중요한 정보는
+   짧고 객관적인 키워드로 정리할 수 있습니다.
+5. 제보에 없는 사실은 추측하지 마세요.
+6. 근거가 불분명한 내용은 결과에서 제외하세요.
+7. 같은 키워드는 한 번만 반환하세요.
+8. 요약은 한국어로 간결하게 작성하세요.
+
+반드시 다음 형식의 JSON을 반환하세요.
+{{
+  "items": [
+    {{
+      "keyword": "키워드",
+      "summary": "한 줄 요약"
+    }}
+  ]
+}}
+관련 정보가 없으면 items는 빈 배열로 반환하세요.
+"""
+
+    response = client.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config={
+            "response_mime_type": "application/json",
+            "response_schema": {
+                "type": "OBJECT",
+                "properties": {
+                    "items": {
+                        "type": "ARRAY",
+                        "items": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "keyword": {"type": "STRING"},
+                                "summary": {"type": "STRING"},
+                            },
+                            "required": ["keyword", "summary"],
+                        },
+                    }
+                },
+                "required": ["items"],
+            },
+        },
+    )
+
+    try:
+        result = json.loads(response.text or "")
+        items = result["items"]
+
+        if not isinstance(items, list):
+            raise ValueError("items는 배열이어야 합니다.")
+
+        return [
+            {
+                "keyword": item["keyword"].strip(),
+                "summary": item["summary"].strip(),
+            }
+            for item in items
+            if isinstance(item, dict)
+            and isinstance(item.get("keyword"), str)
+            and item["keyword"].strip()
+            and isinstance(item.get("summary"), str)
+            and item["summary"].strip()
+        ]
+
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError("AI 리뷰 분류 결과 형식이 올바르지 않습니다.") from exc
