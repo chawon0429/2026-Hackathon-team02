@@ -1,9 +1,4 @@
-# 2026-Hackathon-team02
-
-
-
-
-# Inclusive Place
+# Inclusive Place  _    2026-Hackathon-team02
 
 > 장소 방문 전 필요한 접근성 정보와 이용 정보를 확인하고, 사용자 제보를 통해 더 나은 장소 정보를 만들어가는 서비스
 
