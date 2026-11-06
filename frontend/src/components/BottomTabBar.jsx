@@ -56,23 +56,33 @@ const ProfileIcon = () => (
 export default function BottomTabBar() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const currentPath = location.pathname;
 
-  // 현재 URL에 ?admin=1이 포함되어 있는지 확인
+  // 현재 URL에 admin=1이 있을 때만 관리자 이동 상태 유지
   const searchParams = new URLSearchParams(location.search);
   const isAdminMode = searchParams.get("admin") === "1";
 
-  // App.jsx 라우트 경로와 100% 일치하도록 매핑
+  // 관리자 이동 상태 유지 (일반 사용자는 기존 URL 그대로)
+  const getTabPath = (path) => {
+    if (isAdminMode) {
+      return `${path}?admin=1`;
+    }
+
+    return path;
+  };
+
   const isHomeActive = currentPath === "/";
   const isDiscoverActive = currentPath.startsWith("/discover");
   const isMyPageActive = currentPath.startsWith("/mypage");
 
   return (
     <nav className="bottom-tab-bar" aria-label="하단 네비게이션">
+      {/* 홈 */}
       <button
         type="button"
         className={`bottom-tab-item ${isHomeActive ? "active" : ""}`}
-        onClick={() => navigate("/")}
+        onClick={() => navigate(getTabPath("/"))}
       >
         <div className="tab-icon-wrapper">
           <HomeIcon />
@@ -80,10 +90,11 @@ export default function BottomTabBar() {
         <span className="tab-label">홈</span>
       </button>
 
+      {/* 발견 */}
       <button
         type="button"
         className={`bottom-tab-item ${isDiscoverActive ? "active" : ""}`}
-        onClick={() => navigate("/discover")}
+        onClick={() => navigate(getTabPath("/discover"))}
       >
         <div className="tab-icon-wrapper">
           <DiscoverIcon />
@@ -91,13 +102,11 @@ export default function BottomTabBar() {
         <span className="tab-label">발견</span>
       </button>
 
+      {/* 내 페이지 */}
       <button
         type="button"
         className={`bottom-tab-item ${isMyPageActive ? "active" : ""}`}
-        onClick={() => {
-          // 관리자 모드일 때는 마이페이지로 갈 때도 ?admin=1 파라미터를 유지함
-          navigate(isAdminMode ? "/mypage?admin=1" : "/mypage");
-        }}
+        onClick={() => navigate(getTabPath("/mypage"))}
       >
         <div className="tab-icon-wrapper">
           <ProfileIcon />

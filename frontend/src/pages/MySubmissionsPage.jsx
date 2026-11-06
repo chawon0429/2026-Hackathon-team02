@@ -444,12 +444,7 @@ export default function MySubmissionsPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  const isParamAdmin = searchParams.get("admin") === "1";
-  if (isParamAdmin) {
-    localStorage.setItem("isAdminMode", "true");
-  }
-  const isAdmin =
-    isParamAdmin || localStorage.getItem("isAdminMode") === "true";
+  const isAdmin = searchParams.get("admin") === "1";
 
   const initialTab = location.state?.tab || "all";
 
