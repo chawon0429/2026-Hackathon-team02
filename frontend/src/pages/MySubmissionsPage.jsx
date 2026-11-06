@@ -101,29 +101,6 @@ function normalizePlaceList(data) {
   return [];
 }
 
-function CheckedCircleIcon() {
-  return (
-    <div className="mission-check-circle is-done">
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    </div>
-  );
-}
-
-function UncheckedCircleIcon() {
-  return <div className="mission-check-circle is-undone" />;
-}
-
 function ProfileSection({ user = {}, submissions = [] }) {
   const safeSubmissions = Array.isArray(submissions) ? submissions : [];
 
@@ -431,12 +408,17 @@ function Timeline({
   );
 }
 
-function Missions({ points }) {
+function Missions({ points, pointsLoading }) {
   return (
     <section className="section">
       <SectionHeader title="포인트 미션" />
-      {points !== null && points !== undefined && (
-        <p className="my-points-badge">내 포인트 {points}P</p>
+      {pointsLoading ? (
+        <p className="my-points-badge">내 포인트 불러오는 중...</p>
+      ) : (
+        points !== null &&
+        points !== undefined && (
+          <p className="my-points-badge">내 포인트 {points}P</p>
+        )
       )}
 
       <ul className="cards">
@@ -451,7 +433,6 @@ function Missions({ points }) {
               </span>
               <span className="mission__point">{m.point}P</span>
             </div>
-            {m.done ? <CheckedCircleIcon /> : <UncheckedCircleIcon />}
           </li>
         ))}
       </ul>
@@ -463,7 +444,13 @@ export default function MySubmissionsPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  const isAdmin = searchParams.get("admin") === "1";
+  const isParamAdmin = searchParams.get("admin") === "1";
+  if (isParamAdmin) {
+    localStorage.setItem("isAdminMode", "true");
+  }
+  const isAdmin =
+    isParamAdmin || localStorage.getItem("isAdminMode") === "true";
+
   const initialTab = location.state?.tab || "all";
 
   const [user, setUser] = useState({
@@ -479,7 +466,10 @@ export default function MySubmissionsPage() {
   const [userLoading, setUserLoading] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
-  const [points, setPoints] = useState(100);
+
+  // 포인트 상태 및 포인트 전용 로딩 상태 추가
+  const [points, setPoints] = useState(null);
+  const [pointsLoading, setPointsLoading] = useState(true);
 
   useEffect(() => {
     setUser((prev) => ({ ...prev, isAdmin }));
@@ -591,13 +581,23 @@ export default function MySubmissionsPage() {
     if (isAdmin) return;
 
     let alive = true;
+    setPointsLoading(true);
 
     getMyPoints(DEMO_USER_ID)
       .then((result) => {
-        if (alive) setPoints(result?.points ?? 100);
+        if (alive) {
+          setPoints(result?.points ?? 0);
+        }
       })
       .catch(() => {
-        if (alive) setPoints(0);
+        if (alive) {
+          setPoints(0);
+        }
+      })
+      .finally(() => {
+        if (alive) {
+          setPointsLoading(false);
+        }
       });
 
     return () => {
@@ -678,7 +678,7 @@ export default function MySubmissionsPage() {
           busyId={busyId}
         />
 
-        {!isAdmin && <Missions points={points} />}
+        {!isAdmin && <Missions points={points} pointsLoading={pointsLoading} />}
       </main>
 
       <BottomTabBar />
