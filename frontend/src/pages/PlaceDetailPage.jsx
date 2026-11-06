@@ -187,7 +187,7 @@ function PlaceDetailPage() {
                     >
                         〈
                     </button>
-
+                    <section className="store-card">
                     <div className="store-info">
                         <h1>{place.name}</h1>
                         <p>{place.tags || "카테고리 정보 없음"}</p>
@@ -210,9 +210,28 @@ function PlaceDetailPage() {
                             </div>
                         )}
                     </div> 
+                    </section>
                     <AISummary placeId={place.id} />              
                 </main>
-
+                {selectedPhoto && (
+                    <div
+                        className="photo-modal"
+                        onClick={() => setSelectedPhoto(null)}
+                    >
+                        <button
+                            type="button"
+                            className="photo-close"
+                            onClick={() => setSelectedPhoto(null)}
+                        >
+                            ×
+                        </button>
+                        <img
+                            src={selectedPhoto}
+                            alt="확대 사진"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                )}
             <BottomSheet place={place} sheetHeight={sheetHeight} />
 
             <BottomTabBar />

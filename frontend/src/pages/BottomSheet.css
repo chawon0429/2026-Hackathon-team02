@@ -1,6 +1,6 @@
 .bottom-sheet {
     position: fixed;
-    bottom: 76px;
+    bottom: 68px;
     left: 50%;
     transform: translateX(-50%);
 
@@ -20,7 +20,7 @@
 }
 
 .bottom-sheet.open {
-    height: calc(100% - 116px);
+    height: calc(100% - 108px);
 }
 
 .sheet-handle {
@@ -64,28 +64,35 @@
 
 .sheet-categories {
     display: flex;
-    border: 2px solid #c9c9c9;
-    border-radius: 14px;
-    padding: 6px 4px;
-    gap: 2px;
+    align-items: center;
+    gap: 0;
+
+    padding: 12px 4px;
+    margin: 8px 0 16px;
+
+    background: white;
+    border: 1px solid #e2e7ed;
+    border-radius: 20px;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
 }
 
 .sheet-category {
     flex: 1;
     min-width: 0;
     min-height: 64px;
-    padding: 6px 0;
-    background: white;
-    border: none;
-    border-radius: 10px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
 
-    color: #333;
+    padding: 4px 0;
+    background: transparent;
+    border: none;
+
+    color: #444;
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
@@ -99,7 +106,7 @@
 }
 
 .sheet-category.is-active {
-    background: #d3e2ff;
+    background: transparent;
     color: #0057e7;
     font-weight: 800;
 }
@@ -400,7 +407,7 @@
 .comment-window {
     position: fixed;
     top: 0;
-    bottom: 76px;
+    bottom: 68px;
     left: 50%;
     transform: translateX(-50%);
 
@@ -464,4 +471,10 @@
     font-size: 14px;
     color: #888;
     padding: 50px 0;
+}
+
+.sheet-category.is-active span {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
 }

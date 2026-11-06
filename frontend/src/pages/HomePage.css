@@ -1,4 +1,4 @@
-.home {
+/* .home {
     --blue: #0057e7;
     --blue-soft: #d3e2ff;
     --gray: #d9d9d9;
@@ -28,57 +28,223 @@
 }
 
 /* 검색 */
-.search { 
-    display: flex; align-items: center; border: 2px solid var(--blue); border-radius: 999px; padding: 0 6px 0 16px; min-height: 48px; 
-}
-.search__input { 
-    flex: 1; border: 0; outline: 0; font-size: 16px; background: transparent; min-width: 0; 
-}
-.search__btn { 
-    width: 44px; height: 44px; border: 0; background: none; display: grid; place-items: center; 
-}
-
-
-.cats { 
-    display: flex; border: 2px solid #c9c9c9; border-radius: 14px; padding: 6px 4px; gap: 2px; 
-}
-.cat {
-    flex: 1; min-width: 0; background: none; border: 0; border-radius: 10px; min-height: 64px; padding: 6px 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; letter-spacing: -0.04em;
-}
-.cat__icon { 
-    width:32px; height:32px; object-fit:contain; display:block; 
-}
-.cat.is-active { 
-    color: var(--blue); background: var(--blue-soft); font-weight: 800; 
+:root {
+  --blue: #0057e7;
+  --blue-light: #e8f0fe;
+  --gray-bg: #f5f7fa;
+  --text-dark: #111111;
+  --text-muted: #888888;
+  --border-light: #e8ecef;
 }
 
-.picks { 
-    list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 6px; 
-}
-.pick {
-    position: relative;
-    min-height: 32px; padding: 0 12px 0 8px; border: 0; border-radius: 999px; background: transparent;
-    display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: #333;
-}
-.pick::after { 
-    content: ""; position: absolute; inset: -6px -3px; 
-}
-.pick svg { 
-    color: var(--blue); 
-}
-.pick.is-on { 
-    background: var(--blue); color: #fff; font-weight: 700; 
-}
-.pick.is-on svg { 
-    color: #fff; 
+.home {
+  max-width: 440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: var(--gray-bg);
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  font-family:
+    "Pretendard",
+    -apple-system,
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    sans-serif;
+  box-sizing: border-box;
+  position: relative;
 }
 
-/* 목록 */
-.places { 
-    list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px solid #ddd; display: flex; flex-direction: column; gap: 14px; 
+.home button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
-.places__empty { 
-    text-align: center; color: #595959; padding: 32px 0; font-size: 15px; 
+
+.home button:focus-visible,
+.home input:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* 1. 상단 파란색 라운드 헤더 (배경 및 높이 확정) */
+.home__header {
+  width: 100%;
+  background-color: #0057e7 !important;
+  height: 100px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding-top: 24px !important;
+  border-bottom-left-radius: 26px;
+  border-bottom-right-radius: 26px;
+  box-sizing: border-box;
+}
+
+.home__logo {
+  color: #ffffff !important;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.home__body {
+  flex: 1;
+  padding: 0 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: -36px; /* 검색바가 파란 헤더 하단과 겹치도록 겹침 처리 */
+  z-index: 2;
+}
+
+/* 2. 알약 형태 둥근 검색바 */
+.search {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid var(--blue);
+  border-radius: 999px;
+  padding: 4px 16px;
+  min-height: 48px;
+  box-shadow: 0 4px 12px rgba(0, 87, 231, 0.08);
+}
+
+.search__input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  font-size: 15px;
+  background: transparent;
+  min-width: 0;
+  color: #222;
+}
+
+.search__input::placeholder {
+  color: #999999;
+}
+
+.search__btn {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* 3. 1행 5열 카테고리 박스 */
+.cats {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 10px 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.cats__list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px;
+}
+
+.cats__item {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.cats__icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+}
+
+.cats__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555555;
+  white-space: nowrap;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.cats__item--active .cats__label {
+  color: var(--blue);
+  font-weight: 800;
+  border-bottom: 2px solid var(--blue);
+  padding-bottom: 1px;
+}
+
+/* 4. 체크 아이콘 필터 태그 */
+.picks {
+  padding: 0 2px;
+}
+
+.picks__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.picks__item {
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #444444;
+}
+
+.picks__item svg {
+  stroke: #888888;
+}
+
+.picks__item--active {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.picks__item--active svg {
+  stroke: var(--blue);
+}
+
+/* 5. 장소 목록 컨테이너 */
+.places {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.places__message {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px 0;
+  font-size: 14px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border-light);
+}
+
+.places__message--error {
+  color: #d93025;
 }

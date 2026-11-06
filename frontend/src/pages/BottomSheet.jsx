@@ -9,7 +9,10 @@ import { CATEGORIES, MOCK_REVIEWS} from "../mocks/places";
 import { useNavigate, useLocation } from "react-router-dom";
 import like from "../assets/like.svg";
 
-function CommentWindow({ place, reviews, onClose, likedReviews, onToggleLike }) {
+function CommentWindow({
+    place, reviews, reviewsLoading, reviewsError, onRetry,
+    onClose, likedReviews, onToggleLike, reviewPending
+}) {
     return (
         <div className="comment-window">
             <div className="comment-window-bluebar"></div>
@@ -24,17 +27,37 @@ function CommentWindow({ place, reviews, onClose, likedReviews, onToggleLike }) 
             </button>
 
             <main className="comment-window-content">                
-                <p className="comment-window-place">
-                    {place?.name}
-                </p>
-                <h1>
-                    리뷰 <span>{reviews.length}</span>
-                </h1>
+                <div className="comment-window-header-text">
+                    <p className="comment-window-place">
+                        {place?.name}
+                    </p>
+
+                    <h1 className="comment-window-title">
+                        리뷰 <span>{reviews.length}</span>
+                    </h1>
+                </div>
 
 
+
+                {reviewPending && (
+                    <p role="status">
+                        방금 작성한 리뷰는 관리자 승인 후 공개 목록에 표시됩니다.
+                    </p>
+                )}
 
                 <div className="comment-window-list">
-                    {reviews.length > 0 ? (
+                    {reviewsLoading ? (
+                        <p className="comment-window-empty">
+                            승인된 리뷰를 불러오는 중입니다.
+                        </p>
+                    ) : reviewsError ? (
+                        <div className="comment-window-empty">
+                            <p>{reviewsError}</p>
+                            <button type="button" onClick={onRetry}>
+                                다시 불러오기
+                            </button>
+                        </div>
+                    ) : reviews.length > 0 ? (
                         reviews.map((review) => {
                             const reviewId = review.reviewId ?? review.id;
 
@@ -75,7 +98,12 @@ function CommentWindow({ place, reviews, onClose, likedReviews, onToggleLike }) 
     );
 }
 
-function BottomSheet({ place, sheetHeight }) {
+function BottomSheet({
+    place,
+    sheetHeight,
+    openReviews = false,
+    reviewPending = false
+}) {
     const navigate = useNavigate();
     const location = useLocation();
     const CATEGORY_ICONS = {
@@ -85,28 +113,106 @@ function BottomSheet({ place, sheetHeight }) {
         benefit: benefitIcon,
         order: orderIcon,
     };
-    const [isOpen, setIsOpen] = useState(
-        location.state?.openReviews === true
-    );
+    const shouldOpenReviews =
+        openReviews || location.state?.openReviews === true;
+
+    const showPendingNotice =
+        reviewPending || location.state?.reviewPending === true;
+
+    const [isOpen, setIsOpen] = useState(shouldOpenReviews);
+
     const [dragHeight, setDragHeight] = useState(null);
     const startRef = useRef(null);
     const wasDragged = useRef(false);
     const contentTouchStartY = useRef(null);
     const [categoryKey, setCategoryKey] = useState("access");
     const [likedReviews, setLikedReviews] = useState([]);
-    const [showCommentWindow, setShowCommentWindow] = useState(false);
-    const [showAllReviews, setShowAllReviews] = useState(
-        location.state?.openReviews === true
-    );
+
+    const [showCommentWindow, setShowCommentWindow] =
+        useState(shouldOpenReviews);
+
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
+    const [reviewsError, setReviewsError] = useState("");
+    const [retryCount, setRetryCount] = useState(0);
     const facts = place?.facts?.[categoryKey] || {};
     const reviewPhotos = [
         place?.thumb,
         ...(place?.photos || [])
     ].filter(Boolean);
 
-    const reviews = MOCK_REVIEWS.filter(
-        (review) => String(review.id) === String(place?.id)
-    );
+    useEffect(() => {
+        if (!place?.id) {
+            setReviews([]);
+            setReviewsLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        async function fetchReviews() {
+            setReviewsLoading(true);
+            setReviewsError("");
+
+            try {
+                const response = await fetch(
+                    "/api/v1/admin/submissions?status=approved",
+                    { signal: controller.signal }
+                );
+
+                if (!response.ok) {
+                    throw new Error("승인된 리뷰 조회에 실패했습니다.");
+                }
+
+                const data = await response.json();
+
+                if (!Array.isArray(data)) {
+                    throw new Error("리뷰 데이터 형식이 올바르지 않습니다.");
+                }
+
+                const approvedReviews = data
+                    .filter((item) =>
+                        String(item.place_id) === String(place.id) &&
+                        item.status === "approved"
+                    )
+                    .map((item) => {
+                        const factsText = [
+                            ...(item.accessibility || []),
+                            ...(item.facilities || []),
+                            item.usage_method,
+                            item.waiting_time,
+                            item.min_order
+                        ].filter(Boolean).join(", ");
+
+                        return {
+                            reviewId: item.id,
+                            nickname: `사용자 ${item.user_id}`,
+                            date: "승인 완료",
+                            content: item.content || factsText || "작성된 내용이 없습니다.",
+                            likes: 0
+                        };
+                    });
+
+                if (!controller.signal.aborted) {
+                    setReviews(approvedReviews);
+                }
+
+            } catch (error) {
+                if (controller.signal.aborted) return;
+
+                setReviews([]);
+                setReviewsError(error.message);
+            } finally {
+                if (!controller.signal.aborted) {
+                    setReviewsLoading(false);
+                }
+            }
+        }
+
+        fetchReviews();
+
+        return () => controller.abort();
+    }, [place?.id, retryCount]);
 
     function toggleSheet() {
         if (wasDragged.current) {
@@ -133,7 +239,7 @@ function BottomSheet({ place, sheetHeight }) {
         }
 
         const minHeight = window.innerHeight * 0.2;
-        const maxHeight = window.innerHeight - 116;
+        const maxHeight = window.innerHeight - 108;
         const newHeight = startRef.current.height + distance;
         const height = Math.max(minHeight, Math.min(maxHeight, newHeight));
 
@@ -212,6 +318,10 @@ function BottomSheet({ place, sheetHeight }) {
             <CommentWindow
                 place={place}
                 reviews={reviews}
+                reviewsLoading={reviewsLoading}
+                reviewsError={reviewsError}
+                reviewPending={showPendingNotice}
+                onRetry={() => setRetryCount((prev) => prev + 1)}
                 likedReviews={likedReviews}
                 onToggleLike={toggleLike}
                 onClose={() => setShowCommentWindow(false)}
@@ -354,7 +464,21 @@ function BottomSheet({ place, sheetHeight }) {
                         </button>
                     </div>
 
-                    {reviews.length > 0 ? (
+                {reviewsLoading ? (
+                    <p className="sheet-review-empty">
+                        승인된 리뷰를 불러오는 중입니다.
+                    </p>
+                ) : reviewsError ? (
+                    <div className="sheet-review-empty">
+                        <p>{reviewsError}</p>
+                        <button
+                            type="button"
+                            onClick={() => setRetryCount((prev) => prev + 1)}
+                        >
+                            다시 불러오기
+                        </button>
+                    </div>
+                ) : reviews.length > 0 ? (
                         reviews
                             .slice(0, 2)
                             .map((review) => (

@@ -12,6 +12,7 @@ export const CATEGORIES = [
 export const MOCK_PLACES = [
     {
     id: 1,
+    dbId: 2,     // 실제 DB ID
     name: "하루카페",
     tags: "카페, 디저트",
     reviewCount: "999+",
@@ -43,6 +44,21 @@ export const MOCK_PLACES = [
     name: "하루식당",
     tags: "한식, 점심",
     reviewCount: "128",
+    thumb: null,
+    facts: {
+        access: { "계단": false, "경사로": true, "자동문": true, "엘리베이터": null, "휠체어 이동가능": true },
+        facility: { "화장실": true, "휠체어 화장실": true, "테이블 간격 넓음": null, "등받이 의자": false },
+        menu: { "메뉴판 있음": true, "큰 글씨 메뉴": true, "가격 표시": true, "사진 메뉴": true },
+        benefit: { "카드 할인": true, "통신사 할인": true, "적립": false, "중복 적용": null },
+        order: { "키오스크": true, "선결제": false, "직원 호출": true, "셀프 반납": true },
+    },
+    },
+        {
+    id: 4,
+    dbId: 3,     // 실제 DB ID
+    name: "모두의 카페",
+    tags: "카페, 디저트",
+    reviewCount: "348",
     thumb: null,
     facts: {
         access: { "계단": false, "경사로": true, "자동문": true, "엘리베이터": null, "휠체어 이동가능": true },
