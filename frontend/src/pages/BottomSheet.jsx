@@ -156,7 +156,7 @@ function BottomSheet({
 
             try {
                 const response = await fetch(
-                    "/api/v1/admin/submissions?status=approved",
+                    "/api/v1/admin/submissions",
                     { signal: controller.signal }
                 );
 
@@ -172,8 +172,7 @@ function BottomSheet({
 
                 const approvedReviews = data
                     .filter((item) =>
-                        String(item.place_id) === String(place.id) &&
-                        item.status === "approved"
+                        String(item.place_id) === String(place.id)
                     )
                     .map((item) => {
                         const factsText = [
