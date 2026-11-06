@@ -1,30 +1,3 @@
-// import { NavLink } from "react-router-dom";
-// import homeIcon from "../assets/home.svg";
-// import discoverIcon from "../assets/discover.svg";
-// import mypageIcon from "../assets/mypage.svg";
-// import "./BottomTabBar.css";
-
-// // 경로는 App.jsx의 Route path와 같아야함
-// const TABS = [
-//   { to: "/", label: "홈", icon: homeIcon },
-//   { to: "/discover", label: "발견", icon: discoverIcon },
-//   { to: "/mypage", label: "내 페이지", icon: mypageIcon },
-// ];
-
-// export default function BottomTabBar() {
-//   return (
-//     <nav className="tabbar" aria-label="하단 메뉴">
-//       {TABS.map(({ to, label, icon }) => (
-//         <NavLink key={to} to={to} end={to === "/"}
-//                  className={({ isActive }) => `tabbar__item${isActive ? " is-active" : ""}`}>
-//           <img className="tabbar__icon" src={icon} alt="" width="28" height="28" />
-//           <span className="tabbar__label">{label}</span>
-//         </NavLink>
-//       ))}
-//     </nav>
-//   );
-//}
-
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./BottomTabBar.css";
@@ -85,6 +58,10 @@ export default function BottomTabBar() {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  // 현재 URL에 ?admin=1이 포함되어 있는지 확인
+  const searchParams = new URLSearchParams(location.search);
+  const isAdminMode = searchParams.get("admin") === "1";
+
   // App.jsx 라우트 경로와 100% 일치하도록 매핑
   const isHomeActive = currentPath === "/";
   const isDiscoverActive = currentPath.startsWith("/discover");
@@ -117,7 +94,10 @@ export default function BottomTabBar() {
       <button
         type="button"
         className={`bottom-tab-item ${isMyPageActive ? "active" : ""}`}
-        onClick={() => navigate("/mypage")}
+        onClick={() => {
+          // 관리자 모드일 때는 마이페이지로 갈 때도 ?admin=1 파라미터를 유지함
+          navigate(isAdminMode ? "/mypage?admin=1" : "/mypage");
+        }}
       >
         <div className="tab-icon-wrapper">
           <ProfileIcon />

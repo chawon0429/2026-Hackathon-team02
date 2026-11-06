@@ -1,93 +1,4 @@
-﻿# from fastapi import APIRouter, Depends, HTTPException
-# from sqlalchemy.orm import Session
-# from app.schemas.place import PlaceCreate, PlaceResponse
-
-# from app.db.session import get_db
-# from app.models.place import Place
-# from app.models.place_fact import PlaceFact
-# from app.schemas.place import PlaceResponse
-
-# router = APIRouter(tags=["Places"])
-
-# # 장소 생성
-# @router.post("/places", response_model=PlaceResponse, status_code=201)
-# def create_place(
-#     place_data: PlaceCreate,
-#     db: Session = Depends(get_db),
-# ):
-#     place = Place(**place_data.model_dump())
-
-#     db.add(place)
-#     db.commit()
-#     db.refresh(place)
-
-#     return place
-
-# # 장소 목록 조회
-# @router.get("/places", response_model=list[PlaceResponse])
-# def get_places(db: Session = Depends(get_db)):
-#     return db.query(Place).order_by(Place.id.desc()).all()
-
-
-# # 장소 상세 조회
-# @router.get("/places/{place_id}", response_model=PlaceResponse)
-# def get_place(
-#     place_id: int,
-#     db: Session = Depends(get_db),
-# ):
-#     place = db.query(Place).filter(Place.id == place_id).first()
-
-#     if place is None:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="장소를 찾을 수 없습니다.",
-#         )
-
-#     return place
-
-# # 장소별 접근성 정보 조회
-# @router.get("/places/{place_id}/facts")
-# def get_place_facts(
-#     place_id: int,
-#     db: Session = Depends(get_db),
-# ):
-#     place = db.query(Place).filter(Place.id == place_id).first()
-
-#     if place is None:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="해당 장소를 찾을 수 없습니다.",
-#         )
-
-#     facts = (
-#         db.query(PlaceFact)
-#         .filter(PlaceFact.place_id == place_id)
-#         .all()
-#     )
-
-#     return {
-#         "place_id": place.id,
-#         "place_name": place.name,
-#         "facts": [
-#             {
-#                 "id": fact.id,
-#                 "fact_type": fact.fact_type,
-#                 "value": fact.value,
-#                 "confidence": fact.confidence,
-#                 "evidence": fact.evidence,
-#             }
-#             for fact in facts
-#         ],
-#     }
-
-
-
-
-
-
-
-
-from collections import defaultdict
+﻿from collections import defaultdict
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -120,7 +31,6 @@ def create_place(
 # 승인된 리뷰 개수 + 접근성 + 편의시설 포함
 @router.get("/places", response_model=list[PlaceResponse])
 def get_places(db: Session = Depends(get_db)):
-
     # 모든 장소 조회
     places = (
         db.query(Place)
@@ -177,7 +87,7 @@ def get_places(db: Session = Depends(get_db)):
     return result
 
 
-# 장소 상세 조회
+# 장소 상세 조회 (수정됨: review_count 및 상세 정보 포함)
 @router.get("/places/{place_id}", response_model=PlaceResponse)
 def get_place(
     place_id: int,
@@ -191,7 +101,32 @@ def get_place(
             detail="장소를 찾을 수 없습니다.",
         )
 
-    return place
+    # 해당 장소의 승인된 제보(리뷰)들 조회
+    approved_submissions = (
+        db.query(Submission)
+        .filter(Submission.place_id == place_id, Submission.status == "approved")
+        .all()
+    )
+
+    accessibility_set = set()
+    facilities_set = set()
+    review_count = len(approved_submissions)
+
+    for submission in approved_submissions:
+        for item in submission.accessibility or []:
+            if item:
+                accessibility_set.add(item)
+        for item in submission.facilities or []:
+            if item:
+                facilities_set.add(item)
+
+    # Pydantic 모델을 딕셔너리로 변환 후 필드 주입
+    place_data = PlaceResponse.model_validate(place).model_dump()
+    place_data["review_count"] = review_count
+    place_data["accessibility"] = sorted(accessibility_set)
+    place_data["facilities"] = sorted(facilities_set)
+
+    return place_data
 
 
 # 장소별 접근성 정보 조회 (기존 유지)

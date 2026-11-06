@@ -36,36 +36,22 @@ function normalizeStatus(status) {
     .trim()
     .toLowerCase();
 
-  if (["approved", "승인완료", "승인 완료"].includes(value)) {
-    return "approved";
-  }
-
-  if (["pending", "승인대기", "승인 대기"].includes(value)) {
-    return "pending";
-  }
-
-  if (["rejected", "반려"].includes(value)) {
-    return "rejected";
-  }
+  if (["approved", "승인완료", "승인 완료"].includes(value)) return "approved";
+  if (["pending", "승인대기", "승인 대기"].includes(value)) return "pending";
+  if (["rejected", "반려"].includes(value)) return "rejected";
 
   return value;
 }
 
 function getFloor(address) {
   if (!address) return "";
-
   const match = String(address).match(/(?:지하\s*\d+층|B\d+층|\d+층)/i);
-
   return match ? match[0].replace(/\s/g, "") : "";
 }
 
-// 배열 또는 문자열 형태의 카테고리 정리
 function normalizeTags(value) {
   if (!value) return [];
-
-  if (Array.isArray(value)) {
-    return value.filter(Boolean).map(String);
-  }
+  if (Array.isArray(value)) return value.filter(Boolean).map(String);
 
   if (typeof value === "string") {
     return value
@@ -77,14 +63,8 @@ function normalizeTags(value) {
   return [];
 }
 
-// content에서 리뷰 본문과 결제 혜택 분리
 function parseSubmissionContent(content) {
-  if (!content) {
-    return {
-      review: "",
-      benefits: [],
-    };
-  }
+  if (!content) return { review: "", benefits: [] };
 
   const lines = String(content).split("\n");
   const reviewLines = [];
@@ -95,7 +75,6 @@ function parseSubmissionContent(content) {
 
     if (trimmed.startsWith("결제 혜택:")) {
       const benefitText = trimmed.replace("결제 혜택:", "").trim();
-
       benefits.push(
         ...benefitText
           .split(",")
@@ -113,59 +92,29 @@ function parseSubmissionContent(content) {
   };
 }
 
-// 장소 API 응답 형식 통일
 function normalizePlaceList(data) {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.items)) return data.items;
   if (Array.isArray(data?.places)) return data.places;
   if (Array.isArray(data?.data)) return data.data;
   if (Array.isArray(data?.results)) return data.results;
-
   return [];
 }
 
-function CheckedCircleIcon() {
-  return (
-    <div className="mission-check-circle is-done">
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
-    </div>
-  );
-}
-
-function UncheckedCircleIcon() {
-  return <div className="mission-check-circle is-undone" />;
-}
-
-// 프로필
 function ProfileSection({ user = {}, submissions = [] }) {
   const safeSubmissions = Array.isArray(submissions) ? submissions : [];
 
   const approvedCount = safeSubmissions.filter(
     (s) => s && s.status === "approved",
   ).length;
-
   const pendingCount = safeSubmissions.filter(
     (s) => s && s.status === "pending",
   ).length;
-
   const rejectedCount = safeSubmissions.filter(
     (s) => s && s.status === "rejected",
   ).length;
 
-  // 전체 제보 수는 반려 제외
-  const totalCount = approvedCount + pendingCount;
-
+  const totalCount = approvedCount + pendingCount + rejectedCount;
   const stats = [
     { label: "전체 제보", count: totalCount },
     { label: "승인 완료", count: approvedCount },
@@ -180,7 +129,6 @@ function ProfileSection({ user = {}, submissions = [] }) {
 
         <div className="profile__user-info">
           <h1 className="profile__name">{user?.nickname || "테스트사용자1"}</h1>
-
           {user?.isAdmin && <span className="badge-admin">관리자</span>}
         </div>
 
@@ -209,7 +157,6 @@ function SectionHeader({ title }) {
   );
 }
 
-// 제보 카테고리 표시
 function SubmissionTags({ accessibility, facilities, benefits }) {
   const accessTags = normalizeTags(accessibility);
   const facilityTags = normalizeTags(facilities);
@@ -228,7 +175,6 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
       {accessTags.length > 0 && (
         <div className="submission-tag-group">
           <span className="submission-tag-label">접근성</span>
-
           <div className="submission-tag-list">
             {accessTags.map((tag, index) => (
               <span
@@ -245,7 +191,6 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
       {facilityTags.length > 0 && (
         <div className="submission-tag-group">
           <span className="submission-tag-label">시설</span>
-
           <div className="submission-tag-list">
             {facilityTags.map((tag, index) => (
               <span
@@ -262,7 +207,6 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
       {benefitTags.length > 0 && (
         <div className="submission-tag-group">
           <span className="submission-tag-label">결제 혜택</span>
-
           <div className="submission-tag-list">
             {benefitTags.map((tag, index) => (
               <span
@@ -279,7 +223,6 @@ function SubmissionTags({ accessibility, facilities, benefits }) {
   );
 }
 
-// 내 타임라인
 function Timeline({
   isAdmin,
   submissions = [],
@@ -295,13 +238,11 @@ function Timeline({
 
   const list = useMemo(() => {
     const safeList = Array.isArray(submissions) ? submissions : [];
-
     const filtered =
       tab === "all" ? safeList : safeList.filter((s) => s && s.status === tab);
 
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a?.created_at || a?.createdAt || 0).getTime();
-
       const dateB = new Date(b?.created_at || b?.createdAt || 0).getTime();
 
       if (dateA !== dateB) {
@@ -359,16 +300,11 @@ function Timeline({
 
               const placeId = Number(item.place_id);
               const place = places?.[placeId] || null;
-
               const storeName =
                 place?.name || item.place_name || `장소 ${item.place_id || ""}`;
-
               const floor =
                 getFloor(place?.address) || item.floor || place?.category || "";
-
-              // 리뷰와 결제 혜택 분리
               const parsedContent = parseSubmissionContent(item.content);
-
               const userComment =
                 parsedContent.review ||
                 item.comment ||
@@ -377,7 +313,6 @@ function Timeline({
                 item.details ||
                 item.review ||
                 "";
-
               const benefits = [
                 ...parsedContent.benefits,
                 ...normalizeTags(item.benefits),
@@ -392,13 +327,11 @@ function Timeline({
                           <span className="card__store">
                             {item.user_nickname || `사용자 ${item.user_id}`}
                           </span>
-
                           <span className="card__dong">{storeName}</span>
                         </>
                       ) : (
                         <>
                           <span className="card__store">{storeName}</span>
-
                           {floor && <span className="card__dong">{floor}</span>}
                         </>
                       )}
@@ -414,9 +347,8 @@ function Timeline({
                             onReview && onReview(item.id, "approved")
                           }
                         >
-                          승인
+                          {busyId === item.id ? "처리 중..." : "승인완료"}
                         </button>
-
                         <button
                           type="button"
                           className="btn-reject"
@@ -425,7 +357,7 @@ function Timeline({
                             onReview && onReview(item.id, "rejected")
                           }
                         >
-                          반려
+                          {busyId === item.id ? "처리 중..." : "반려"}
                         </button>
                       </div>
                     ) : (
@@ -435,25 +367,21 @@ function Timeline({
                     )}
                   </div>
 
-                  {/* 일반 텍스트 리뷰 */}
                   {userComment && (
                     <div className="submission-review-content">
                       <span className="submission-review-label">
                         작성한 리뷰
                       </span>
-
                       <p className="card__inline-comment">{userComment}</p>
                     </div>
                   )}
 
-                  {/* 접근성 / 시설 / 결제 혜택 태그 */}
                   <SubmissionTags
                     accessibility={item.accessibility}
                     facilities={item.facilities}
                     benefits={benefits}
                   />
 
-                  {/* 반려 사유 */}
                   {item.status === "rejected" && (
                     <p className="card__inline-reject-reason">
                       반려 사유:{" "}
@@ -480,13 +408,17 @@ function Timeline({
   );
 }
 
-function Missions({ points }) {
+function Missions({ points, pointsLoading }) {
   return (
     <section className="section">
       <SectionHeader title="포인트 미션" />
-
-      {points !== null && points !== undefined && (
-        <p className="my-points-badge">내 포인트 {points}P</p>
+      {pointsLoading ? (
+        <p className="my-points-badge">내 포인트 불러오는 중...</p>
+      ) : (
+        points !== null &&
+        points !== undefined && (
+          <p className="my-points-badge">내 포인트 {points}P</p>
+        )
       )}
 
       <ul className="cards">
@@ -499,11 +431,8 @@ function Missions({ points }) {
               <span className="mission__title">
                 {i + 1}. {m.title}
               </span>
-
               <span className="mission__point">{m.point}P</span>
             </div>
-
-            {m.done ? <CheckedCircleIcon /> : <UncheckedCircleIcon />}
           </li>
         ))}
       </ul>
@@ -515,7 +444,13 @@ export default function MySubmissionsPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  const isAdmin = searchParams.get("admin") === "1";
+  const isParamAdmin = searchParams.get("admin") === "1";
+  if (isParamAdmin) {
+    localStorage.setItem("isAdminMode", "true");
+  }
+  const isAdmin =
+    isParamAdmin || localStorage.getItem("isAdminMode") === "true";
+
   const initialTab = location.state?.tab || "all";
 
   const [user, setUser] = useState({
@@ -523,28 +458,28 @@ export default function MySubmissionsPage() {
     nickname: "테스트사용자1",
     isAdmin,
   });
-
   const [submissions, setSubmissions] = useState([]);
   const [places, setPlaces] = useState({});
   const [tab, setTab] = useState(isAdmin ? "pending" : initialTab);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [userLoading, setUserLoading] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
-  const [points, setPoints] = useState(100);
+
+  // 포인트 상태 및 포인트 전용 로딩 상태 추가
+  const [points, setPoints] = useState(null);
+  const [pointsLoading, setPointsLoading] = useState(true);
 
   useEffect(() => {
-    setUser((prev) => ({
-      ...prev,
-      isAdmin,
-    }));
+    setUser((prev) => ({ ...prev, isAdmin }));
   }, [isAdmin]);
 
-  // 사용자 정보 조회
   useEffect(() => {
-    if (isAdmin) return;
+    if (isAdmin) {
+      setUserLoading(false);
+      return;
+    }
 
     let alive = true;
 
@@ -570,7 +505,6 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin]);
 
-  // 제보 및 장소 데이터 조회
   useEffect(() => {
     let alive = true;
 
@@ -583,13 +517,9 @@ export default function MySubmissionsPage() {
 
         if (isAdmin) {
           const res = await fetch(`${API_BASE}/admin/submissions`);
-
-          if (!res.ok) {
-            throw new Error("관리자 제보 조회 실패");
-          }
+          if (!res.ok) throw new Error("관리자 제보 조회 실패");
 
           const submissionResult = await res.json();
-
           submissionList = Array.isArray(submissionResult)
             ? submissionResult
             : submissionResult?.items ||
@@ -598,7 +528,6 @@ export default function MySubmissionsPage() {
               [];
         } else {
           const submissionResult = await getMySubmissions();
-
           submissionList = Array.isArray(submissionResult)
             ? submissionResult
             : submissionResult?.items ||
@@ -607,23 +536,15 @@ export default function MySubmissionsPage() {
               [];
         }
 
-        // 장소 목록 조회 및 ID별 매핑
         let placeMap = {};
 
         try {
           const placesResponse = await fetch(`${API_BASE}/places`);
-
           if (placesResponse.ok) {
             const placesData = await placesResponse.json();
-            const placeList = normalizePlaceList(placesData);
-
-            placeList.forEach((place) => {
-              if (place?.id != null) {
-                placeMap[Number(place.id)] = place;
-              }
+            normalizePlaceList(placesData).forEach((place) => {
+              if (place?.id != null) placeMap[Number(place.id)] = place;
             });
-          } else {
-            console.warn("장소 목록 조회 실패:", placesResponse.status);
           }
         } catch (e) {
           console.warn("장소 목록 조회 실패:", e);
@@ -643,10 +564,7 @@ export default function MySubmissionsPage() {
         }
       } catch (err) {
         console.error("내 페이지 데이터 조회 실패:", err);
-
-        if (alive) {
-          setError("데이터를 불러오지 못했습니다.");
-        }
+        if (alive) setError("데이터를 불러오지 못했습니다.");
       } finally {
         if (alive) setLoading(false);
       }
@@ -659,20 +577,27 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin, reloadKey]);
 
-  // 포인트 조회
   useEffect(() => {
     if (isAdmin) return;
 
     let alive = true;
+    setPointsLoading(true);
 
     getMyPoints(DEMO_USER_ID)
       .then((result) => {
         if (alive) {
-          setPoints(result?.points ?? 100);
+          setPoints(result?.points ?? 0);
         }
       })
       .catch(() => {
-        if (alive) setPoints(0);
+        if (alive) {
+          setPoints(0);
+        }
+      })
+      .finally(() => {
+        if (alive) {
+          setPointsLoading(false);
+        }
       });
 
     return () => {
@@ -680,16 +605,16 @@ export default function MySubmissionsPage() {
     };
   }, [isAdmin, reloadKey]);
 
-  // 관리자 승인 / 반려
   const onReview = async (id, status) => {
-    let rejectReason;
+    if (!isAdmin) return;
+
+    let rejectReason = "";
 
     if (status === "rejected") {
       rejectReason = window.prompt(
         "반려 사유를 입력해 주세요",
         "정보가 정확하지 않아요",
       );
-
       if (rejectReason === null) return;
     }
 
@@ -700,25 +625,25 @@ export default function MySubmissionsPage() {
         `${API_BASE}/admin/submissions/${id}/review`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            status,
-            reject_reason: rejectReason,
+            status: status === "approved" ? "approved" : "rejected",
+            reject_reason: status === "rejected" ? rejectReason : undefined,
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error("승인/반려 처리 실패");
+        const detail = await response.text();
+        throw new Error(detail || "승인/반려 처리 실패");
       }
 
       setReloadKey((key) => key + 1);
     } catch (err) {
       console.error("제보 심사 실패:", err);
-
-      window.alert("처리하지 못했어요. 잠시 후 다시 시도해 주세요.");
+      window.alert(
+        `처리하지 못했어요. 잠시 후 다시 시도해 주세요.\n${err.message || ""}`,
+      );
     } finally {
       setBusyId(null);
     }
@@ -727,7 +652,9 @@ export default function MySubmissionsPage() {
   return (
     <div className="mypage">
       <header className="mypage__header">
-        <h1 className="mypage__title">내 활동</h1>
+        <h1 className="mypage__title">
+          {isAdmin ? "관리자 페이지" : "내 활동"}
+        </h1>
       </header>
 
       <main className="mypage__body">
@@ -740,7 +667,7 @@ export default function MySubmissionsPage() {
         )}
 
         <Timeline
-          isAdmin={user.isAdmin}
+          isAdmin={isAdmin}
           submissions={submissions}
           places={places}
           loading={loading}
@@ -751,7 +678,7 @@ export default function MySubmissionsPage() {
           busyId={busyId}
         />
 
-        {!user.isAdmin && <Missions points={points} />}
+        {!isAdmin && <Missions points={points} pointsLoading={pointsLoading} />}
       </main>
 
       <BottomTabBar />
