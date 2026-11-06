@@ -280,7 +280,7 @@
   font-weight: 600;
 }
 
-/* 작성한 실제 리뷰 코멘트: 크기 작게(13px), 폰트 진하지 않음(#555, weight: 400) */
+
 .card__inline-comment {
   margin: 4px 0 0 0;
   font-size: 13px;
@@ -328,7 +328,7 @@
   gap: 6px;
 }
 
-.btn-approve {
+.mypage .btn-approve {
   background: var(--blue-main);
   color: #ffffff;
   border: none;
@@ -338,7 +338,7 @@
   font-weight: 800;
 }
 
-.btn-reject {
+.mypage .btn-reject {
   background: #ffffff;
   color: var(--blue-main);
   border: 1.5px solid var(--blue-main);
